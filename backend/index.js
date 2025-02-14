@@ -2,8 +2,17 @@ const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const deployCommands = require('./deploy-commands.js');
 const fs = require('node:fs');
 const path = require('node:path');
+const GoogleAPI = require("./utils/gapi.js");
+
+const express = require('express');
+const router = require("./utils/router.js");
+
+const app = express();
+app.use(express.json());
+app.use(router);
 
 const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]});
+const gapi = new GoogleAPI();
 
 client.commands = new Collection();
 
@@ -39,6 +48,14 @@ for (const file of eventFiles) {
 }
 
 (async () => {
+	await gapi.authorize();
+	// console.log((await gapi.getValues(process.env.SS_ID, "Сегодня!A1:G41")).data.values);
     await deployCommands();
     client.login(process.env.DTOKEN);
 })();
+
+(async () => {
+	app.listen(8181, () => console.log("Server started!"));
+})();
+
+module.exports = { client, gapi };
