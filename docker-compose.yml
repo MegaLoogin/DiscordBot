@@ -1,0 +1,9 @@
+services:
+    backend:
+        build: ./backend/
+        restart: unless-stopped
+        stdin_open: true
+        tty: true
+        env_file: ".env"
+        ports:
+            - 8181:8181
