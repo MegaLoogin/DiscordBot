@@ -17,3 +17,23 @@ router.post('/sendTasksData', async (req, res) => {
 
     res.json({"status": "ok"});
 });
+
+router.post("/sendBudgetData", async (req, res) => {
+    const { deals } = req.body;
+    const { client } = require('../index');
+
+    const messageText = deals.map(item => `СПЕНД "${item.brand}":  \n    • Израсходовано: $${item.spentBudget} / $${item.budget}  \n    • Цена за FTD: $${item.avgFtdCost.toFixed(2)}`).join('\n\n');
+
+    await client.channels.cache.get(process.env.FINANCE_CHAN_ID).send(messageText);
+
+    res.json({"status": "ok"});
+});
+
+router.post("/sendBudgetAlert", async (req, res) => {
+    const { deal } = req.body;
+    const { client } = require('../index');
+
+    await client.channels.cache.get(process.env.FINANCE_CHAN_ID).send(`Внимание! Превышение бюджета по ${deal.brand} у ${deal.buyer}! ($${deal.spentBudget} / $${deal.budget}). <@${process.env.BIZDEV_ID}> согласовать увеличение бюджета?`);
+
+    res.json({"status": "ok"});
+});

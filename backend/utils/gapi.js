@@ -58,6 +58,18 @@ module.exports = class GoogleAPI{
         return client;
     }
 
+    async cloneSheet(spreadsheetId, sheetId, title){
+        const newSheet = (await this.sheets.spreadsheets.sheets.copyTo({
+            spreadsheetId, sheetId, requestBody: {
+                destinationSpreadsheetId: spreadsheetId
+            }
+        })).data;
+        await this.sheets.spreadsheets.batchUpdate({
+            spreadsheetId, requestBody: { requests: [ { updateSheetProperties: { properties: { sheetId: newSheet.sheetId, title }, fields: 'title' }}]}
+        });
+        return newSheet.sheetId;
+    }
+
     async createSheet(spreadsheetId, title, rowCount, columnCount){
         return (await this.sheets.spreadsheets.batchUpdate({
             spreadsheetId,
@@ -71,6 +83,12 @@ module.exports = class GoogleAPI{
         return await this.sheets.spreadsheets.values.get({
             spreadsheetId,
             range
+        });
+    }
+
+    async appendData(spreadsheetId, range, values){
+        return await this.sheets.spreadsheets.values.append({
+            spreadsheetId, range, valueInputOption: "RAW", requestBody: { values: [values] }
         });
     }
 
@@ -118,7 +136,7 @@ module.exports = class GoogleAPI{
     async getSheets(spreadsheetId){
         return (await this.sheets.spreadsheets.get({
             spreadsheetId
-        })).data.sheets
+        })).data.sheets;
     }
 
     // async createMeta(spreadsheetId, metadataId=0){
