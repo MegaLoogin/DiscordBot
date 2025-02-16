@@ -17,9 +17,11 @@ const INACTIVITY_THRESHOLD = 4 * 60 * 60 * 1000; // 4 часа неактивн�
 
 function isWorkingHours() {
 	const now = new Date();
+	const day = now.getDay(); // 0 - воскресенье, 6 - суббота
 	const hour = now.getHours();
-	return hour >= 10 && hour < 18;
-  }
+	// Рабочие дни: понедельник (1) - пятница (5), и время с 10 до 18
+	return day >= 1 && day <= 5 && hour >= 10 && hour < 18;
+}
 
 const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates]});
 const userActivity = new Map();
