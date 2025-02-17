@@ -116,8 +116,8 @@ function recordActivity(user) {
 		if (!record.notified && now - record.lastActivity >= INACTIVITY_THRESHOLD) {
 		  client.users.fetch(userId)
 			.then(user => {
-			//   user.send("Вы не проявляли активность 4 часа подряд. Пожалуйста, проверьте свою активность.")
-				// .catch(err => console.error(`Ошибка отправки ЛС пользователю ${user.tag}:`, err));
+			  user.send("Вы не проявляли активность 4 часа подряд. Пожалуйста, проверьте свою активность.")
+				.catch(err => console.error(`Ошибка отправки ЛС пользователю ${user.tag}:`, err));
 				console.log(user);
 			})
 			.catch(err => console.error(`Ошибка получения пользователя ${userId}:`, err));
@@ -176,6 +176,7 @@ function recordActivity(user) {
 (async () => {
 	await gapi.authorize();
     await deployCommands();
+	
     client.login(process.env.DTOKEN);
 })();
 

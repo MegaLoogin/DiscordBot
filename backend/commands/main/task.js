@@ -24,7 +24,7 @@ function convertDate(dateString) {
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('задача').setNameLocalization('en-US', 'task')
+		.setName('задача')
 		.setDescription('Создает задачу для дизайнеров')
         .addStringOption(opt => opt.setName('название').setDescription('Краткое описание задачи (например, «Баннер для Facebook»)').setRequired(true))
         .addStringOption(opt => opt.setName('описание').setDescription('Детали от баера (размеры, текст, стиль)').setRequired(true))

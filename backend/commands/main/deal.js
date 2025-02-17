@@ -102,35 +102,35 @@ module.exports = {
             filtered.map(c => ({name: c.name, value: c.value})).slice(0, 24)
         );
     },
-    async execute(int) {
-        await int.deferReply();
+    // async execute(int) {
+    //     await int.deferReply();
 
-        const subcommand = int.options.getSubcommand();
-        const name = int.options.getString('бренд');
-        const geo = int.options.getString('гео');
-        const kpi = int.options.getString('kpi');
-        const deadline = int.options.getString('активен');
-        const source = int.options.getString('источник');
-        const comment = int.options.getString('примечание');
+    //     const subcommand = int.options.getSubcommand();
+    //     const name = int.options.getString('бренд');
+    //     const geo = int.options.getString('гео');
+    //     const kpi = int.options.getString('kpi');
+    //     const deadline = int.options.getString('активен');
+    //     const source = int.options.getString('источник');
+    //     const comment = int.options.getString('примечание');
 
-        let ss_id = subcommand === "cpa" ? process.env.SS_CPA_ID : process.env.SS_SPEND_ID;
+    //     let ss_id = subcommand === "cpa" ? process.env.SS_CPA_ID : process.env.SS_SPEND_ID;
 
-        const sheet = await getSheetByGeo(ss_id, geo, subcommand);
+    //     const sheet = await getSheetByGeo(ss_id, geo, subcommand);
 
-        if (subcommand === 'cpa') {
-            const rate = int.options.getInteger('ставка');
-            const cap = int.options.getInteger('cap');
-            await createNewCard(process.env.OFFER_BOARD, process.env.DEAL_LIST_NEW, `[${subcommand.toUpperCase()}] ${name} ${geo}`,
-                `Ставка: $${rate}\nCAP: ${cap}\nKPI: ${kpi}\nСроки: ${deadline}\nПримечание: ${comment}`, "bottom");
-            await addDeal(ss_id, sheet, [name, geo, rate, source, cap, kpi, deadline, comment]);
-        } else if (subcommand === 'spend') {
-            const budget = int.options.getInteger('бюджет');
-            const rate = int.options.getInteger('ставка');
-            await createNewCard(process.env.OFFER_BOARD, process.env.DEAL_LIST_NEW, `[${subcommand.toUpperCase()}] ${name} ${geo}`,
-                `Бюджет: $${budget}\nСтавка: $${rate}\nKPI: ${kpi}\nСроки: ${deadline}\nПримечание: ${comment}`, "bottom");
-            await addDeal(ss_id, sheet, [name, geo, budget, source, rate, kpi, deadline, comment]);
-        }
+    //     if (subcommand === 'cpa') {
+    //         const rate = int.options.getInteger('ставка');
+    //         const cap = int.options.getInteger('cap');
+    //         await createNewCard(process.env.OFFER_BOARD, process.env.DEAL_LIST_NEW, `[${subcommand.toUpperCase()}] ${name} ${geo}`,
+    //             `Ставка: $${rate}\nCAP: ${cap}\nKPI: ${kpi}\nСроки: ${deadline}\nПримечание: ${comment}`, "bottom");
+    //         await addDeal(ss_id, sheet, [name, geo, rate, source, cap, kpi, deadline, comment]);
+    //     } else if (subcommand === 'spend') {
+    //         const budget = int.options.getInteger('бюджет');
+    //         const rate = int.options.getInteger('ставка');
+    //         await createNewCard(process.env.OFFER_BOARD, process.env.DEAL_LIST_NEW, `[${subcommand.toUpperCase()}] ${name} ${geo}`,
+    //             `Бюджет: $${budget}\nСтавка: $${rate}\nKPI: ${kpi}\nСроки: ${deadline}\nПримечание: ${comment}`, "bottom");
+    //         await addDeal(ss_id, sheet, [name, geo, budget, source, rate, kpi, deadline, comment]);
+    //     }
 
-        await int.editReply(`Сделка [${subcommand.toUpperCase()}] ${name} ${geo} добавлена`);
-    },
+    //     await int.editReply(`Сделка [${subcommand.toUpperCase()}] ${name} ${geo} добавлена`);
+    // },
 };

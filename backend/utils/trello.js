@@ -28,5 +28,35 @@ module.exports = {
         const labels = (await tapi.getLabelsForBoard(boardId)).filter(v => v.name);
 
         return {count: cards.length, urgentCount: cards.filter(v => v.idLabels.includes(labels.find(v => v.name == "Срочно").id)).length};
+    },
+
+    async onCardsChange(boardName, listName, onChange){
+        const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
+        const boardId = boards.find(v => v.name == boardName).id;
+        const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
+        const list = lists.find(v => v.name == listName);
+        let lastCards = await tapi.getCardsOnList(list.id);
+
+        setInterval(async () => {
+            const cards = await tapi.getCardsOnList(list.id);
+            const compare = findNewCards(cards, lastCards);
+            
+            lastCards = cards;
+            if(compare.length > 0) onChange(compare);
+        }, 1000);
+    },
+
+    async moveCard(boardName, listName, cardId){
+        const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
+        const boardId = boards.find(v => v.name == boardName).id;
+        const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
+        const list = lists.find(v => v.name == listName);
+        await tapi.makeRequest('PUT', `/1/cards/${cardId}`, { idList: list.id, idBoard: boardId });
     }
 };
+
+function findNewCards(currentCards, previousCards) {
+    const previousCardIds = new Set(previousCards.map(card => card.id));
+  
+    return currentCards.filter(card => !previousCardIds.has(card.id));
+}
