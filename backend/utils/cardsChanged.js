@@ -3,7 +3,8 @@ const { onCardsChange, moveCard } = require("./trello");
 const { DESIGN_BOARD, DESIGN_LIST_WORK, DESIGN_LIST_DONE, DESIGN_CHAN_ID, 
     BIZDEV_BOARD, BIZDEV_PUSH_BOARD, BIZDEV_LIST_WORK, BIZDEV_LIST_DONE, BIZDEV_CHAN_ID, 
     FB_BOARD, FB_LIST_NEW, FB_LIST_BUYERS, FB_TEMPLATE_NAME, FB_LIST_TROUBLE,
-    PUSH_BOARD, PUSH_LIST_NEW, PUSH_LIST_BUYERS, PUSH_TEMPLATE_NAME, PUSH_LIST_TROUBLE } = process.env;
+    PUSH_BOARD, PUSH_LIST_NEW, PUSH_LIST_BUYERS, PUSH_TEMPLATE_NAME, PUSH_LIST_TROUBLE,
+    TECH_BOARD, TECH_LIST_WORK, TECH_LIST_DONE, TECH_CHAN_ID } = process.env;
 
 module.exports = function (client){
     onCardsChange(DESIGN_BOARD, DESIGN_LIST_WORK, async dif => {
@@ -95,6 +96,8 @@ module.exports = function (client){
             }
         });
     });
+
+    console.log(PUSH_LIST_BUYERS);
 
     PUSH_LIST_BUYERS.split(',').forEach(buyerName => {
         onCardsChange(PUSH_BOARD, buyerName, async dif => {
