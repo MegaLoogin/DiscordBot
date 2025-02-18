@@ -68,4 +68,28 @@ module.exports = function (client){
             });
         });
     });
+
+    onCardsChange(TECH_BOARD, TECH_LIST_WORK, async dif => {
+        dif.forEach(async card => {
+            const match = card.desc.match(/from \[\s*(@\S+)\s*(<@\d+>)\s*(\d+)\s*\]/);
+
+            if(match){
+                await client.channels.cache.get(match[3]).send(`[Trello] <@${match[2]}> Начата работа над задачей ${card.name}`);
+            }else{
+                await client.channels.cache.get(TECH_CHAN_ID).send(`[Trello] Начата работа над задачей ${card.name}`);
+            }
+        });
+    });
+
+    onCardsChange(TECH_BOARD, TECH_LIST_DONE, async dif => {
+        dif.forEach(async card => {
+            const match = card.desc.match(/from \[\s*(@\S+)\s*(<@\d+>)\s*(\d+)\s*\]/);
+
+            if(match){
+                await client.channels.cache.get(match[3]).send(`[Trello] <@${match[2]}> Задача ${card.name} готова!`);
+            }else{
+                await client.channels.cache.get(TECH_CHAN_ID).send(`[Trello] Задача ${card.name} готова!`);
+            }
+        });
+    });
 }
