@@ -82,6 +82,17 @@ module.exports = function (client){
     });
     
 
+    onCardsChange(BIZDEV_PUSH_BOARD, BIZDEV_LIST_WORK, async dif => {
+        dif.forEach(async card => {
+            const match = card.desc.match(/@([A-Za-z0-9]+)/);
+
+            if(match){
+                await client.channels.cache.get(BIZDEV_CHAN_ID).send(`[Trello] <@${match[1]}> Ваш запрос (${card.name}) на этапе подключения`);
+            }else{
+                await client.channels.cache.get(BIZDEV_CHAN_ID).send(`[Trello] Ваш запрос (${card.name}) на этапе подключения`);
+            }
+        });
+    });
 
     onCardsChange(BIZDEV_PUSH_BOARD, BIZDEV_LIST_DONE, async dif => {
         dif.forEach(async card => {
@@ -96,8 +107,6 @@ module.exports = function (client){
             }
         });
     });
-
-    console.log(PUSH_LIST_BUYERS);
 
     PUSH_LIST_BUYERS.split(',').forEach(buyerName => {
         onCardsChange(PUSH_BOARD, buyerName, async dif => {
@@ -118,11 +127,10 @@ module.exports = function (client){
     PUSH_LIST_BUYERS.split(',').forEach(buyerName => {
         onCardsChange(buyerName + " " + PUSH_TEMPLATE_NAME, PUSH_LIST_TROUBLE, async dif => {
             dif.forEach(async card => {
-                await moveCard(BIZDEV_BOARD, PUSH_LIST_TROUBLE, card.id);
+                await moveCard(BIZDEV_PUSH_BOARD, PUSH_LIST_TROUBLE, card.id);
             });
         });
     });
-
 
 
     onCardsChange(TECH_BOARD, TECH_LIST_WORK, async dif => {
@@ -148,4 +156,6 @@ module.exports = function (client){
             }
         });
     });
+
+    console.log("All triggers enabled!");
 }

@@ -43,7 +43,7 @@ module.exports = {
             
             lastCards = cards;
             if(compare.length > 0) onChange(compare);
-        }, 1000);
+        }, 3000);
     },
 
     async moveCard(boardName, listName, cardId){
