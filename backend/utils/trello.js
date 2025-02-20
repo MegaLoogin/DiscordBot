@@ -11,6 +11,7 @@ module.exports = {
         const label = (await tapi.getLabelsForBoard(boardId)).find(v => v.name == labelName);
 
         try{
+            console.log(6);
             await tapi.addCardWithExtraParams(name, { 
                 desc, pos, due, idLabels: label?.id
             }, list.id);

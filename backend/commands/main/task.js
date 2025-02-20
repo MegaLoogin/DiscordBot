@@ -46,7 +46,7 @@ module.exports = {
 
         let dateString = convertDate(date.year ? int.options.getString('дедлайн') : ( ( ( new Date(`${new Date().getFullYear()}-${date.month}-${date.day}`) - new Date(new Date().toDateString()) ) < 0)? `${date.day}.${date.month}.${new Date().getFullYear() + 1}` : `${date.day}.${date.month}.${new Date().getFullYear()}` ))
         console.log(3)
-        await createNewCard(process.env.DESIGN_BOARD, process.env.DESIGN_LIST_REQUESTS, `${int.options.getString('название')} (${designerName})`, int.options.getString('описание') + `\nfrom [@${int.user.displayName} <@${int.user.id}> ${int.channelId}]`, "bottom", dateString, int.options.getString('приоритет'));
+        await createNewCard(process.env.DESIGN_BOARD, process.env.DESIGN_LIST_REQUESTS, `${int.options.getString('название')}`, int.options.getString('описание') + `\nfrom [@${int.user.displayName} <@${int.user.id}> ${int.channelId}]`, "bottom", dateString, int.options.getString('приоритет'));
         console.log(4)
         const queueData = await getQueue(process.env.DESIGN_BOARD, process.env.DESIGN_LIST_REQUESTS);
         console.log(5)
