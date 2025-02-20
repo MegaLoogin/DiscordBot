@@ -15,6 +15,8 @@ app.use(router);
 const SESSION_TIMEOUT = 15 * 60 * 1000;      // Если активности не было 15 минут, считаем, что сессия завершена
 const INACTIVITY_THRESHOLD = 4 * 60 * 60 * 1000; // 4 часа неактивности для отправки предупреждения
 
+const ADMIN_IDS = process.env.ADMIN_IDS ? process.env.ADMIN_IDS.split(',') : [];
+
 function isWorkingHours() {
 	const now = new Date();
 	const day = now.getDay(); // 0 - воскресенье, 6 - суббота
@@ -91,7 +93,7 @@ function saveActivityData() {
 }
 
 function recordActivity(user) {
-	if (!isWorkingHours()) return; // Если не рабочее время, ничего не делаем
+	if (!isWorkingHours() || ADMIN_IDS.includes(user.id)) return; // Если не рабочее время, ничего не делаем
   
 	const now = Date.now();
 	let record = userActivity.get(user.id);
