@@ -19,15 +19,45 @@ module.exports = {
         }
     },
 
-    async getQueue(boardName, listName){
+    // async getQueue(boardName, listName){
+    //     const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
+    //     const boardId = boards.find(v => v.name == boardName).id;
+    //     const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
+    //     const list = lists.find(v => v.name == listName);
+    //     const cards = await tapi.getCardsOnList(list.id);
+    //     const labels = (await tapi.getLabelsForBoard(boardId)).filter(v => v.name);
+
+    //     return {count: cards.length, urgentCount: cards.filter(v => v.idLabels.includes(labels.find(v => v.name == "Срочно").id)).length};
+    // },
+
+    async getQueue(boardName, listName) {
         const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
         const boardId = boards.find(v => v.name == boardName).id;
         const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
         const list = lists.find(v => v.name == listName);
         const cards = await tapi.getCardsOnList(list.id);
         const labels = (await tapi.getLabelsForBoard(boardId)).filter(v => v.name);
-
-        return {count: cards.length, urgentCount: cards.filter(v => v.idLabels.includes(labels.find(v => v.name == "Срочно").id)).length};
+    
+        // Группировка по именам в скобках
+        const nameStats = cards.reduce((acc, card) => {
+            // Ищем имя в последних скобках в названии
+            const match = card.name.match(/\(([^)]+)\)$/);
+            const name = match ? match[1].trim() : 'Без имени';
+            
+            acc[name] = (acc[name] || 0) + 1;
+            return acc;
+        }, {});
+    
+        // Преобразуем в массив объектов
+        const nameCounts = Object.entries(nameStats)
+            .map(([name, count]) => ({name, count}))
+            .sort((a, b) => b.count - a.count); // Сортировка по убыванию
+    
+        return {
+            count: cards.length,
+            urgentCount: cards.filter(v => v.idLabels.includes(labels.find(v => v.name == "Срочно").id)).length,
+            names: nameCounts
+        };
     },
 
     async onCardsChange(boardName, listName, onChange){

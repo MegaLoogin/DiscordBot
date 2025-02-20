@@ -35,10 +35,7 @@ module.exports = {
 	async execute(int) {
         await int.deferReply();
         const date = validateDate(int.options.getString('дедлайн'));
-        const designer = int.options.get('дизайнер').value;
-
-        console.log(designer);
-        return;
+        const [designerId, designerName] = int.options.getString('дизайнер').split('|');
 
         if(!date) {
             await int.reply({content: 'Неверный формат даты (дд.мм.гггг или дд.мм). Пример: 02.03 или 02.03.2025', flags: MessageFlags.Ephemeral});
@@ -47,7 +44,7 @@ module.exports = {
 
         let dateString = convertDate(date.year ? int.options.getString('дедлайн') : ( ( ( new Date(`${new Date().getFullYear()}-${date.month}-${date.day}`) - new Date(new Date().toDateString()) ) < 0)? `${date.day}.${date.month}.${new Date().getFullYear() + 1}` : `${date.day}.${date.month}.${new Date().getFullYear()}` ))
         
-        await createNewCard(process.env.DESIGN_BOARD, process.env.DESIGN_LIST_REQUESTS, int.options.getString('название'), int.options.getString('описание') + `\nfrom [@${int.user.displayName} <@${int.user.id}> ${int.channelId}]`, "bottom", dateString, int.options.getString('приоритет'));
+        await createNewCard(process.env.DESIGN_BOARD, process.env.DESIGN_LIST_REQUESTS, `${int.options.getString('название')} (${designerName})`, int.options.getString('описание') + `\nfrom [@${int.user.displayName} <@${int.user.id}> ${int.channelId}]\nto <@${designerId}>`, "bottom", dateString, int.options.getString('приоритет'));
         const queueData = await getQueue(process.env.DESIGN_BOARD, process.env.DESIGN_LIST_REQUESTS);
         await int.editReply(`Новая задача "${int.options.getString('название')}". Очередь: ${queueData.count} задач`);
 	},
