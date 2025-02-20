@@ -79,7 +79,7 @@ const path = require('path');
 const TOKEN = 'YOUR_BOT_TOKEN';
 const CHANNEL_ID = 'REPORT_CHANNEL_ID';
 const DATA_FILE = path.join(__dirname, 'user_stats.json');
-const CHECK_INTERVAL = 5 * 60 * 1000;
+const CHECK_INTERVAL = 2 * 60 * 1000;
 
 let userTime = new Map();
 let lastActivity = new Map();
