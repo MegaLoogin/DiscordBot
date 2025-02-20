@@ -47,7 +47,7 @@ for (const folder of commandFolders) {
 	}
 }
 
-const ACTIVITY_FILE = path.join(__dirname, 'activityData.json');
+const ACTIVITY_FILE = path.join(__dirname, 'volume/activityData.json');
 
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));

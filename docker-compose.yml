@@ -7,3 +7,5 @@ services:
         env_file: ".env"
         ports:
             - 8181:8181
+        volumes:
+            - ./backend/volume:/backend/volume
