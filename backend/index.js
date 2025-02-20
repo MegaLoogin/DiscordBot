@@ -29,8 +29,8 @@ const client = new Client({intents:
 	[GatewayIntentBits.Guilds,
 	GatewayIntentBits.GuildMessages,
 	GatewayIntentBits.MessageContent,
-	// GatewayIntentBits.GuildVoiceStates,
-    // GatewayIntentBits.GuildPresences,
+	GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildPresences,
     GatewayIntentBits.GuildMembers]});
 const gapi = new GoogleAPI();
 
