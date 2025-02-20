@@ -24,7 +24,7 @@ function isWorkingHours() {
 }
 
 const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates]});
-const userActivity = new Map();
+const userActivity = loadActivityData();
 const gapi = new GoogleAPI();
 
 client.commands = new Collection();
@@ -47,6 +47,8 @@ for (const folder of commandFolders) {
 	}
 }
 
+const ACTIVITY_FILE = path.join(__dirname, 'activityData.json');
+
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
 
@@ -58,6 +60,34 @@ for (const file of eventFiles) {
 	} else {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
+}
+
+/**
+ * Загружает данные активности из файла.
+ */
+function loadActivityData() {
+	if (fs.existsSync(ACTIVITY_FILE)) {
+	  try {
+		const data = fs.readFileSync(ACTIVITY_FILE, 'utf8');
+		const obj = JSON.parse(data);
+		// Преобразуем объект в Map
+		return new Map(Object.entries(obj));
+	  } catch (err) {
+		console.error("Ошибка загрузки данных активности:", err);
+		return new Map();
+	  }
+	}
+	return new Map();
+  }
+  
+/**
+ * Сохраняет данные активности в файл.
+ */
+function saveActivityData() {
+	const obj = Object.fromEntries(userActivity);
+	fs.writeFile(ACTIVITY_FILE, JSON.stringify(obj, null, 2), err => {
+		if (err) console.error("Ошибка сохранения данных активности:", err);
+	});
 }
 
 function recordActivity(user) {
@@ -88,6 +118,7 @@ function recordActivity(user) {
 	  record.lastActivity = now;
 	  record.notified = false; // Сбрасываем флаг предупреждения при любой активности
 	}
+	saveActivityData();
   }
 
   client.on('messageCreate', message => {
@@ -114,6 +145,7 @@ function recordActivity(user) {
 	  const now = Date.now();
 	  for (const [userId, record] of userActivity.entries()) {
 		if (!record.notified && now - record.lastActivity >= INACTIVITY_THRESHOLD) {
+			client.channels.cache.find(ch => ch.name === 'активность-логи').send(`Пользователь <@${userId}> давно не проявлял активность`);
 		  client.users.fetch(userId)
 			.then(user => {
 			  user.send("Вы не проявляли активность 4 часа подряд. Пожалуйста, проверьте свою активность.")
