@@ -31,7 +31,7 @@ module.exports = {
         .addStringOption(opt => opt.setName('описание').setDescription('Детали от баера (размеры, текст, стиль)').setRequired(true))
         .addStringOption(opt => opt.setName('приоритет').setDescription('Приоритет (Красный = срочно, Зеленый = стандарт)').setRequired(true).addChoices({ name: "Срочно", value: "Срочно"}, { name: "Стандарт", value: "Стандарт"}))
         .addStringOption(opt => opt.setName('дедлайн').setDescription('Дата выполнения').setRequired(true))
-        .addStringOption(opt => opt.setName('дизайнер').setDescription('Дизайнер').setRequired(true).addChoices(DESIGNERS_IDS.split(',').map(v => { const data = v.split('|'); return {name: data[1], value: data} }))),
+        .addStringOption(opt => opt.setName('дизайнер').setDescription('Дизайнер').setRequired(true).addChoices(DESIGNERS_IDS.split(',').map(v => {return {name: v.split('|')[1], value: v} }))),
 	async execute(int) {
         await int.deferReply();
         const date = validateDate(int.options.getString('дедлайн'));
