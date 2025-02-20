@@ -49,7 +49,7 @@ module.exports = {
             return acc;
         }, {});
     
-        // Преобразуем в массив объектов
+        // // Преобразуем в массив объектов
         const nameCounts = Object.entries(nameStats)
             .map(([name, count]) => ({name, count}))
             .sort((a, b) => b.count - a.count); // Сортировка по убыванию
@@ -74,7 +74,7 @@ module.exports = {
             
             lastCards = cards;
             if(compare.length > 0) onChange(compare);
-        }, 3000);
+        }, 10_000);
     },
 
     async moveCard(boardName, listName, cardId){
