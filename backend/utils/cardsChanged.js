@@ -12,9 +12,9 @@ module.exports = function (client){
             const match = card.desc.match(/from \[\s*(@\S+)\s*(<@\d+>)\s*(\d+)\s*\]/);
 
             if(match){
-                await client.channels.cache.get(match[3]).send(`[Trello] <@${match[2]}> Начата работа над задачей ${card.name}`);
+                await client.channels.cache.get(match[3]).send(`[Trello] ${match[2]} Начата работа над задачей "${card.name}"`);
             }else{
-                await client.channels.cache.get(DESIGN_CHAN_ID).send(`[Trello] Начата работа над задачей ${card.name}`);
+                await client.channels.cache.get(DESIGN_CHAN_ID).send(`[Trello] Начата работа над задачей "${card.name}"`);
             }
         });
     });
@@ -24,9 +24,9 @@ module.exports = function (client){
             const match = card.desc.match(/from \[\s*(@\S+)\s*(<@\d+>)\s*(\d+)\s*\]/);
 
             if(match){
-                await client.channels.cache.get(match[3]).send(`[Trello] <@${match[2]}> Задача ${card.name} готова!`);
+                await client.channels.cache.get(match[3]).send(`[Trello] ${match[2]} Задача "${card.name}" готова!`);
             }else{
-                await client.channels.cache.get(DESIGN_CHAN_ID).send(`[Trello] Задача ${card.name} готова!`);
+                await client.channels.cache.get(DESIGN_CHAN_ID).send(`[Trello] Задача "${card.name}" готова!`);
             }
         });
     });

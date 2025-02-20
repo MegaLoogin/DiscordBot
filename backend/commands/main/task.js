@@ -2,6 +2,7 @@ const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 const { createNewCard, getQueue } = require('../../utils/trello.js');
 
 const dateRegex = /^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[0-2])(\.\d{4})?$/;
+const { DESIGNERS_IDS } = process.env;
 
 function validateDate(date) {
     const match = date.match(dateRegex);
@@ -29,11 +30,15 @@ module.exports = {
         .addStringOption(opt => opt.setName('название').setDescription('Краткое описание задачи (например, «Баннер для Facebook»)').setRequired(true))
         .addStringOption(opt => opt.setName('описание').setDescription('Детали от баера (размеры, текст, стиль)').setRequired(true))
         .addStringOption(opt => opt.setName('приоритет').setDescription('Приоритет (Красный = срочно, Зеленый = стандарт)').setRequired(true).addChoices({ name: "Срочно", value: "Срочно"}, { name: "Стандарт", value: "Стандарт"}))
-        .addStringOption(opt => opt.setName('дедлайн').setDescription('Дата выполнения').setRequired(true)),
-        // .addStringOption(opt => opt.setName('участники').setDescription('Дизайнер').setRequired(true)),
+        .addStringOption(opt => opt.setName('дедлайн').setDescription('Дата выполнения').setRequired(true))
+        .addStringOption(opt => opt.setName('дизайнер').setDescription('Дизайнер').setRequired(true).addChoices(DESIGNERS_IDS.split(',').map(v => { const data = v.split('|'); return {name: data[1], value: data} }))),
 	async execute(int) {
         await int.deferReply();
         const date = validateDate(int.options.getString('дедлайн'));
+        const designer = int.options.get('дизайнер').value;
+
+        console.log(designer);
+        return;
 
         if(!date) {
             await int.reply({content: 'Неверный формат даты (дд.мм.гггг или дд.мм). Пример: 02.03 или 02.03.2025', flags: MessageFlags.Ephemeral});
