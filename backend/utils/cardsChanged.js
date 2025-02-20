@@ -91,7 +91,7 @@ module.exports = function (client){
 
     onCardsChange(FB_BOARD, FB_LIST_TROUBLE, async dif => {
         dif.forEach(async card => {
-            await moveCard(BIZDEV_FB_BOARD, FB_LIST_TROUBLE, card.id);
+            await moveCard(BIZDEV_BOARD, FB_LIST_TROUBLE, card.id);
         });
     });
 
