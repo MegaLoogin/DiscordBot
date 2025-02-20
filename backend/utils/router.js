@@ -24,7 +24,7 @@ router.post("/sendBudgetData", async (req, res) => {
 
     const messageText = deals.map(item => `СПЕНД "${item.brand}":  \n    • Израсходовано: $${item.spentBudget} / $${item.budget}  \n    • Цена за FTD: $${item.avgFtdCost.toFixed(2)}`).join('\n\n');
 
-    await client.channels.cache.get(process.env.FINANCE_CHAN_ID).send(messageText);
+    if(messageText.length > 4) await client.channels.cache.get(process.env.FINANCE_CHAN_ID).send(messageText);
 
     res.json({"status": "ok"});
 });
