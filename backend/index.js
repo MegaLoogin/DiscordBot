@@ -70,15 +70,10 @@ for (const file of eventFiles) {
 	}
 }
 
-
-const { Client, GatewayIntentBits } = require('discord.js');
 const schedule = require('node-schedule');
-const fs = require('fs');
-const path = require('path');
 
-const TOKEN = 'YOUR_BOT_TOKEN';
 const CHANNEL_ID = 'REPORT_CHANNEL_ID';
-const DATA_FILE = path.join(__dirname, 'user_stats.json');
+const DATA_FILE = path.join(__dirname, 'volume/user_stats.json');
 const CHECK_INTERVAL = 2 * 60 * 1000;
 
 let userTime = new Map();
