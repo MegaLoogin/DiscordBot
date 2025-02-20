@@ -1,7 +1,7 @@
 const { onCardsChange, moveCard } = require("./trello");
 
 const { DESIGN_BOARD, DESIGN_LIST_WORK, DESIGN_LIST_DONE, DESIGN_CHAN_ID, 
-    BIZDEV_BOARD, BIZDEV_PUSH_BOARD, BIZDEV_LIST_WORK, BIZDEV_LIST_DONE, BIZDEV_CHAN_ID, 
+    BIZDEV_BOARD, BIZDEV_PUSH_BOARD, BIZDEV_LIST_WORK, BIZDEV_LIST_DONE, BIZDEV_CHAN_ID, BIZDEV_LIST_TEST_DONE,
     FB_BOARD, FB_LIST_NEW, FB_LIST_BUYERS, FB_TEMPLATE_NAME, FB_LIST_TROUBLE,
     PUSH_BOARD, PUSH_LIST_NEW, PUSH_LIST_BUYERS, PUSH_TEMPLATE_NAME, PUSH_LIST_TROUBLE,
     TECH_BOARD, TECH_LIST_WORK, TECH_LIST_DONE, TECH_CHAN_ID } = process.env;
@@ -80,6 +80,26 @@ module.exports = function (client){
             });
         });
     });
+
+    FB_LIST_BUYERS.split(',').forEach(buyerName => {
+        onCardsChange(buyerName + " " + FB_TEMPLATE_NAME, BIZDEV_LIST_TEST_DONE, async dif => {
+            dif.forEach(async card => {
+                await moveCard(BIZDEV_BOARD, BIZDEV_LIST_TEST_DONE, card.id);
+            });
+        });
+    });
+
+    onCardsChange(FB_BOARD, FB_LIST_TROUBLE, async dif => {
+        dif.forEach(async card => {
+            await moveCard(BIZDEV_FB_BOARD, FB_LIST_TROUBLE, card.id);
+        });
+    });
+
+    onCardsChange(FB_BOARD, BIZDEV_LIST_TEST_DONE, async dif => {
+        dif.forEach(async card => {
+            await moveCard(BIZDEV_BOARD, BIZDEV_LIST_TEST_DONE, card.id);
+        });
+    });
     
 
     onCardsChange(BIZDEV_PUSH_BOARD, BIZDEV_LIST_WORK, async dif => {
@@ -129,6 +149,26 @@ module.exports = function (client){
             dif.forEach(async card => {
                 await moveCard(BIZDEV_PUSH_BOARD, PUSH_LIST_TROUBLE, card.id);
             });
+        });
+    });
+
+    PUSH_LIST_BUYERS.split(',').forEach(buyerName => {
+        onCardsChange(buyerName + " " + PUSH_TEMPLATE_NAME, BIZDEV_LIST_TEST_DONE, async dif => {
+            dif.forEach(async card => {
+                await moveCard(BIZDEV_PUSH_BOARD, BIZDEV_LIST_TEST_DONE, card.id);
+            });
+        });
+    });
+
+    onCardsChange(PUSH_BOARD, PUSH_LIST_TROUBLE, async dif => {
+        dif.forEach(async card => {
+            await moveCard(BIZDEV_PUSH_BOARD, PUSH_LIST_TROUBLE, card.id);
+        });
+    });
+
+    onCardsChange(PUSH_BOARD, BIZDEV_LIST_TEST_DONE, async dif => {
+        dif.forEach(async card => {
+            await moveCard(BIZDEV_PUSH_BOARD, BIZDEV_LIST_TEST_DONE, card.id);
         });
     });
 
