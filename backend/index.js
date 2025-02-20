@@ -24,7 +24,6 @@ function isWorkingHours() {
 }
 
 const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates]});
-const userActivity = loadActivityData();
 const gapi = new GoogleAPI();
 
 client.commands = new Collection();
@@ -48,6 +47,7 @@ for (const folder of commandFolders) {
 }
 
 const ACTIVITY_FILE = path.join(__dirname, 'volume/activityData.json');
+const userActivity = loadActivityData();
 
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
