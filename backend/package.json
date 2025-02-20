@@ -17,6 +17,7 @@
     "express": "^4.21.2",
     "googleapis": "^144.0.0",
     "node-cron": "^3.0.3",
+    "node-schedule": "^2.1.1",
     "trello": "^0.11.0"
   }
 }
