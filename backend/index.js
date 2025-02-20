@@ -22,7 +22,7 @@ function isWorkingHours() {
 	const day = now.getDay(); // 0 - воскресенье, 6 - суббота
 	const hour = now.getHours();
 	// Рабочие дни: понедельник (1) - пятница (5), и время с 10 до 18
-	return day >= 1 && day <= 5 && hour >= 10 && hour < 18;
+	return day >= 1 && day <= 5 && hour >= 8 && hour < 17;
 }
 
 const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates]});
@@ -161,7 +161,7 @@ function recordActivity(user) {
 	}, 60 * 1000);
   
 	// Планирование ежедневного отчёта в 00:05 (серверное время)
-	cron.schedule('5 0 * * *', () => {
+	cron.schedule('5 17 * * *', () => {
 	  generateDailyReport();
 	});
   });
