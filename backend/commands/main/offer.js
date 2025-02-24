@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, MessageFlags } = require("discord.js");
-const { createNewCard, getQueue } = require('../../utils/trello.js');
+const { createNewCard } = require('../../utils/trello.js');
 const geos = require("../../utils/geos.json");
 
 module.exports = {
@@ -21,8 +21,8 @@ module.exports = {
     async execute(int) {
         await int.deferReply();
         const boardId = int.options.getString('команда') == "FB" ? process.env.BIZDEV_BOARD : process.env.BIZDEV_PUSH_BOARD;
-        await createNewCard(boardId, process.env.BIZDEV_LIST_REQUESTS, `${int.options.getString('название')}`, int.options.getString('детали') + `\n <@${int.user.id}>`, "bottom");
+        await createNewCard(boardId, process.env.BIZDEV_LIST_REQUESTS, `${int.options.getString('название')} ${int.options.getString('гео')}`, int.options.getString('детали') + `\n <@${int.user.id}>`, "bottom");
 
-        await int.editReply(`<@${process.env.BIZDEV_ID}>: запрос на оффер ${int.options.getString('название')} от <@${int.user.id}>`);
+        await int.editReply(`<@${process.env.BIZDEV_ID}>: запрос на оффер ${int.options.getString('название')} ${int.options.getString('гео')} от <@${int.user.id}>`);
     },
 };
