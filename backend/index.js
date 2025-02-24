@@ -72,7 +72,7 @@ for (const file of eventFiles) {
 
 const schedule = require('node-schedule');
 
-const CHANNEL_ID = 'REPORT_CHANNEL_ID';
+const CHANNEL_ID = process.env.ACTIVITY_CHAN_ID;
 const DATA_FILE = path.join(__dirname, 'volume/user_stats.json');
 const CHECK_INTERVAL = 2 * 60 * 1000;
 
