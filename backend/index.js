@@ -167,7 +167,7 @@ client.on('ready', () => {
   loadData();
 
   // Ежедневный отчет
-  schedule.scheduleJob('05 17 * * 1-5', async () => {
+  schedule.scheduleJob('10 18 * * 1-5', async () => {
     if (!isWorkingTime()) return;
 
     const report = [];
