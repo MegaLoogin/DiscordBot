@@ -167,7 +167,7 @@ client.on('ready', () => {
   loadData();
 
   // Ежедневный отчет
-  schedule.scheduleJob('10 18 * * 1-5', async () => {
+  schedule.scheduleJob('5 17 * * 1-5', async () => {
     if (!isWorkingTime()) return;
 
     const report = [];
@@ -204,9 +204,9 @@ client.on('ready', () => {
     }
 
     // Сброс и сохранение данных
-    userTime.clear();
-    lastActivity.clear();
-    lastNotification.clear();
+    // userTime.clear();
+    // lastActivity.clear();
+    // lastNotification.clear();
     saveData();
   });
 
