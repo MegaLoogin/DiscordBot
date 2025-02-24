@@ -231,7 +231,7 @@ client.on('ready', () => {
 
 // Отслеживание активности
 client.on('messageCreate', message => {
-  if (message.author.bot || ADMIN_IDS.includes(user.author.id)) return;
+  if (message.author.bot || ADMIN_IDS.includes(message.author.id)) return;
   lastActivity.set(message.author.id, Date.now());
   saveData();
 });
