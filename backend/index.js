@@ -204,9 +204,9 @@ client.on('ready', () => {
     }
 
     // Сброс и сохранение данных
-    // userTime.clear();
-    // lastActivity.clear();
-    // lastNotification.clear();
+    userTime.clear();
+    lastActivity.clear();
+    lastNotification.clear();
     saveData();
   });
 
