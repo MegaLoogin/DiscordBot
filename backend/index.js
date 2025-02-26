@@ -426,9 +426,14 @@ client.on('presenceUpdate', (oldPresence, newPresence) => {
 
 (async () => {
 	await gapi.authorize();
-    await deployCommands();
-	
-    client.login(process.env.DTOKEN);
+  await deployCommands();
+  while(true){
+    try{
+      console.log(await client.login(process.env.DTOKEN));
+    }catch(e){
+      console.log(e);
+    }
+  }
 })();
 
 (async () => {

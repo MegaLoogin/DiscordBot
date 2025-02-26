@@ -11,7 +11,6 @@ module.exports = {
         const label = (await tapi.getLabelsForBoard(boardId)).find(v => v.name == labelName);
 
         try{
-            console.log(6);
             await tapi.addCardWithExtraParams(name, { 
                 desc, pos, due, idLabels: label?.id
             }, list.id);
@@ -32,57 +31,69 @@ module.exports = {
     // },
 
     async getQueue(boardName, listName) {
-        const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
-        const boardId = boards.find(v => v.name == boardName).id;
-        const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
-        const list = lists.find(v => v.name == listName);
-        const cards = await tapi.getCardsOnList(list.id);
-        const labels = (await tapi.getLabelsForBoard(boardId)).filter(v => v.name);
-    
-        // Группировка по именам в скобках
-        const nameStats = cards.reduce((acc, card) => {
-            // Ищем имя в последних скобках в названии
-            const match = card.name.match(/\(([^)]+)\)$/);
-            const name = match ? match[1].trim() : 'Без имени';
-            
-            acc[name] = (acc[name] || 0) + 1;
-            return acc;
-        }, {});
-    
-        // // Преобразуем в массив объектов
-        const nameCounts = Object.entries(nameStats)
-            .map(([name, count]) => ({name, count}))
-            .sort((a, b) => b.count - a.count); // Сортировка по убыванию
-    
-        return {
-            count: cards.length,
-            urgentCount: cards.filter(v => v.idLabels.includes(labels.find(v => v.name == "Срочно").id)).length,
-            names: nameCounts
-        };
+        try{
+            const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
+            const boardId = boards.find(v => v.name == boardName).id;
+            const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
+            const list = lists.find(v => v.name == listName);
+            const cards = await tapi.getCardsOnList(list.id);
+            const labels = (await tapi.getLabelsForBoard(boardId)).filter(v => v.name);
+        
+            // Группировка по именам в скобках
+            const nameStats = cards.reduce((acc, card) => {
+                // Ищем имя в последних скобках в названии
+                const match = card.name.match(/\(([^)]+)\)$/);
+                const name = match ? match[1].trim() : 'Без имени';
+                
+                acc[name] = (acc[name] || 0) + 1;
+                return acc;
+            }, {});
+        
+            // // Преобразуем в массив объектов
+            const nameCounts = Object.entries(nameStats)
+                .map(([name, count]) => ({name, count}))
+                .sort((a, b) => b.count - a.count); // Сортировка по убыванию
+        
+            return {
+                count: cards.length,
+                urgentCount: cards.filter(v => v.idLabels.includes(labels.find(v => v.name == "Срочно").id)).length,
+                names: nameCounts
+            };
+        }catch(e){
+            console.log(e, listName, boardName);
+        }
     },
 
     async onCardsChange(boardName, listName, onChange){
-        const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
-        const boardId = boards.find(v => v.name == boardName).id;
-        const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
-        const list = lists.find(v => v.name == listName);
-        let lastCards = await tapi.getCardsOnList(list.id);
+        try{
+            const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
+            const boardId = boards.find(v => v.name == boardName).id;
+            const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
+            const list = lists.find(v => v.name == listName);
+            let lastCards = await tapi.getCardsOnList(list.id);
 
-        setInterval(async () => {
-            const cards = await tapi.getCardsOnList(list.id);
-            const compare = findNewCards(cards, lastCards);
-            
-            lastCards = cards;
-            if(compare.length > 0) onChange(compare);
-        }, 10_000);
+            setInterval(async () => {
+                const cards = await tapi.getCardsOnList(list.id);
+                const compare = findNewCards(cards, lastCards);
+                
+                lastCards = cards;
+                if(compare.length > 0) onChange(compare);
+            }, 10_000);
+        }catch(e){
+            console.log(e, listName, boardName);
+        }
     },
 
     async moveCard(boardName, listName, cardId){
-        const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
-        const boardId = boards.find(v => v.name == boardName).id;
-        const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
-        const list = lists.find(v => v.name == listName);
-        await tapi.makeRequest('PUT', `/1/cards/${cardId}`, { idList: list.id, idBoard: boardId });
+        try{
+            const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
+            const boardId = boards.find(v => v.name == boardName).id;
+            const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
+            const list = lists.find(v => v.name == listName);
+            await tapi.makeRequest('PUT', `/1/cards/${cardId}`, { idList: list.id, idBoard: boardId });
+        }catch(e){
+            console.log(e, listName, boardName);
+        }
     }
 };
 
