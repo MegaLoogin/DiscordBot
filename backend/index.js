@@ -433,6 +433,7 @@ client.on('presenceUpdate', (oldPresence, newPresence) => {
     }catch(e){
       console.log(e);
     }
+    console.log("test");
     new Promise(resolve => setTimeout(resolve, 10000))
   }
 })();
