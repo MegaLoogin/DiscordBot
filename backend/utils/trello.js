@@ -4,18 +4,19 @@ const tapi = new trello(process.env.TKEY, process.env.TTOKEN);
 
 module.exports = { 
     async createNewCard(boardName, listName, name, desc, pos, due, labelName){
-        const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
-        const boardId = boards.find(v => v.name == boardName).id;
-        const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
-        const list = lists.find(v => v.name == listName);
-        const label = (await tapi.getLabelsForBoard(boardId)).find(v => v.name == labelName);
-
         try{
+            const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
+            const boardId = boards.find(v => v.name == boardName).id;
+            const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
+            const list = lists.find(v => v.name == listName);
+            if(!list) throw Error(JSON.stringify(lists));
+            const label = (await tapi.getLabelsForBoard(boardId)).find(v => v.name == labelName);
+            
             await tapi.addCardWithExtraParams(name, { 
                 desc, pos, due, idLabels: label?.id
             }, list.id);
         }catch(e){
-            console.log(e);
+            console.log(e, boardName, listName);
         }
     },
 
@@ -36,6 +37,7 @@ module.exports = {
             const boardId = boards.find(v => v.name == boardName).id;
             const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
             const list = lists.find(v => v.name == listName);
+            if(!list) throw Error(JSON.stringify(lists));
             const cards = await tapi.getCardsOnList(list.id);
             const labels = (await tapi.getLabelsForBoard(boardId)).filter(v => v.name);
         
@@ -70,6 +72,7 @@ module.exports = {
             const boardId = boards.find(v => v.name == boardName).id;
             const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
             const list = lists.find(v => v.name == listName);
+            if(!list) throw Error(JSON.stringify(lists));
             let lastCards = await tapi.getCardsOnList(list.id);
 
             setInterval(async () => {
@@ -90,6 +93,7 @@ module.exports = {
             const boardId = boards.find(v => v.name == boardName).id;
             const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
             const list = lists.find(v => v.name == listName);
+            if(!list) throw Error(JSON.stringify(lists));
             await tapi.makeRequest('PUT', `/1/cards/${cardId}`, { idList: list.id, idBoard: boardId });
         }catch(e){
             console.log(e, listName, boardName);
