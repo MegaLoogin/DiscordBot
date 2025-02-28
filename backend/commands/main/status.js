@@ -10,7 +10,8 @@ const MAX_NICKNAME_LENGTH = 32;
 
 // Функция для разбора никнейма на статус и имя
 function parseNickname(nickname) {
-    const statusMatch = nickname.match(/^([🟢🔴🟡])\s*\|\s*(.+)$/);
+    // Используем юникод категории для эмодзи
+    const statusMatch = nickname.match(/^(\p{Emoji})\s*\|\s*(.+)$/u);
     if (statusMatch) {
         return {
             currentStatus: statusMatch[1],

@@ -47,7 +47,7 @@ class StatusTracker {
     }
 
     getUserStatus(nickname) {
-        const match = nickname.match(/^([🟢🔴🟡])/);
+        const match = nickname.match(/^(\p{Emoji})/u);
         if (!match) return null;
         
         const emojiMap = {
@@ -84,7 +84,7 @@ class StatusTracker {
     }
 
     parseNickname(nickname) {
-        const statusMatch = nickname.match(/^([🟢🔴🟡])\s*\|\s*(.+)$/);
+        const statusMatch = nickname.match(/^(\p{Emoji})\s*\|\s*(.+)$/u);
         if (statusMatch) {
             return {
                 currentStatus: statusMatch[1],
