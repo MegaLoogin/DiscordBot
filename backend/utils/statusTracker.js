@@ -90,13 +90,18 @@ class StatusTracker {
             const guild = client.guilds.cache.first();
             if (!guild) return;
 
+            const bot = guild.members.me;
+            if (!bot.permissions.has('ManageNicknames')) {
+                console.error('Bot lacks permission to manage nicknames');
+                return;
+            }
+
             const members = await guild.members.fetch();
             for (const [, member] of members) {
                 if (member.user.bot) continue;
+                if (member.roles.highest.position >= bot.roles.highest.position) continue;
                 
-                // Получаем базовый никнейм
                 let originalNick = member.nickname || member.user.username;
-                // Убираем старый статус из никнейма если он есть
                 originalNick = originalNick.replace(/^\[[^\]]+\]\s*\|\s*/, '');
                 
                 try {

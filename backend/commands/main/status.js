@@ -19,6 +19,19 @@ module.exports = {
         const status = interaction.options.getString('status');
         const member = interaction.member;
         
+        // Check permissions
+        const bot = interaction.guild.members.me;
+        if (!bot.permissions.has('ManageNicknames')) {
+            await interaction.editReply('У бота нет прав на изменение никнеймов');
+            return;
+        }
+
+        // Check role hierarchy
+        if (member.roles.highest.position >= bot.roles.highest.position) {
+            await interaction.editReply('Бот не может изменить ваш никнейм, так как ваша роль выше роли бота');
+            return;
+        }
+        
         // Получаем базовый никнейм: если есть серверный ник - используем его, 
         // если нет - используем имя пользователя
         let originalNick = member.nickname || member.user.username;
