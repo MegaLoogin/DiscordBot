@@ -26,8 +26,8 @@ module.exports = {
             title: 'Текущая статистика',
             description: report.map((u, i) => 
                 `${i + 1}. <@${u.userId}>:\n` +
-                `  • Статус онлайн: ${Math.floor(u.online)}ч ${Math.round((u.online % 1) * 60)}м\n` +
-                `  • Статус отошел: ${Math.floor(u.away)}ч ${Math.round((u.away % 1) * 60)}м`
+                `  • Статус онлайн: ${Math.floor(u.online / 60)}ч ${Math.round(u.online % 60)}м\n` +
+                `  • Статус отошел: ${Math.floor(u.away / 60)}ч ${Math.round(u.away % 60)}м`
             ).join('\n\n'),
             color: 0x0099ff,
             timestamp: new Date().toISOString(),

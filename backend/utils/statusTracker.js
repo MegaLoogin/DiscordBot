@@ -80,7 +80,6 @@ class StatusTracker {
                 userData.startTime = timestamp;
             }
         }
-        this.saveData();
     }
 
     parseNickname(nickname) {
@@ -128,13 +127,15 @@ class StatusTracker {
             // В любом случае обновляем статистику
             this.updateUserStatus(member.id, currentStatus ? currentNick : `🔴 ${baseName}`);
         }
+
+        this.saveData();
     }
 
     getDailyReport() {
         const report = [];
         for (const [userId, data] of this.statusData.entries()) {
-            const totalOnline = Math.floor(data.totalTime.online / (1000 * 60 * 60));
-            const totalAway = Math.floor(data.totalTime.away / (1000 * 60 * 60));
+            const totalOnline = Math.floor(data.totalTime.online / (1000 * 60));
+            const totalAway = Math.floor(data.totalTime.away / (1000 * 60));
             report.push({
                 userId,
                 online: totalOnline,
