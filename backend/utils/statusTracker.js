@@ -84,7 +84,7 @@ class StatusTracker {
     }
 
     parseNickname(nickname) {
-        const statusMatch = nickname.match(/^(\p{Emoji})\s*\|\s*(.+)$/u);
+        const statusMatch = nickname.match(/^(\p{Emoji})\s*(.+)$/u);
         if (statusMatch) {
             return {
                 currentStatus: statusMatch[1],
@@ -118,7 +118,7 @@ class StatusTracker {
                 const { baseName } = member.nickname ? 
                     this.parseNickname(member.nickname) : 
                     { baseName: currentName };
-                const newNick = `🔴 | ${baseName}`;
+                const newNick = `🔴 ${baseName}`;
                 
                 try {
                     await member.setNickname(newNick);

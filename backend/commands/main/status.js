@@ -10,8 +10,8 @@ const MAX_NICKNAME_LENGTH = 32;
 
 // Функция для разбора никнейма на статус и имя
 function parseNickname(nickname) {
-    // Используем юникод категории для эмодзи
-    const statusMatch = nickname.match(/^(\p{Emoji})\s*\|\s*(.+)$/u);
+    // Используем юникод категории для эмодзи, убираем разделитель
+    const statusMatch = nickname.match(/^(\p{Emoji})\s*(.+)$/u);
     if (statusMatch) {
         return {
             currentStatus: statusMatch[1],
@@ -75,7 +75,7 @@ module.exports = {
             { baseName: currentName };
 
         // Создаем новый никнейм с новым статусом
-        const prefix = `${STATUS_EMOJIS[status]} | `;
+        const prefix = `${STATUS_EMOJIS[status]} `;  // Убрали | из префикса
         const maxNameLength = MAX_NICKNAME_LENGTH - prefix.length;
         const newNick = prefix + baseName.slice(0, maxNameLength);
 
