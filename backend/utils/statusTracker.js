@@ -112,18 +112,21 @@ class StatusTracker {
             if (member.user.bot) continue;
             if (member.roles.highest.position >= bot.roles.highest.position) continue;
             
-            const currentName = member.user.globalName || member.user.username;
-            const { baseName } = member.nickname ? 
-                this.parseNickname(member.nickname) : 
-                { baseName: currentName };
-            const newNick = `🔴 ${baseName}`;
-            
-            try {
-                await member.setNickname(newNick);
-                this.updateUserStatus(member.id, newNick);
-            } catch (error) {
-                console.error(`Ошибка сброса статуса для ${member.displayName}:`, error);
+            const currentNick = member.nickname || member.user.globalName || member.user.username;
+            const { currentStatus, baseName } = this.parseNickname(currentNick);
+
+            if (!currentStatus) {
+                // Если нет статуса, добавляем оффлайн статус в ник
+                const newNick = `🔴 ${baseName}`;
+                try {
+                    await member.setNickname(newNick);
+                } catch (error) {
+                    console.error(`Ошибка обновления статуса для ${member.displayName}:`, error);
+                }
             }
+
+            // В любом случае обновляем статистику
+            this.updateUserStatus(member.id, currentStatus ? currentNick : `🔴 ${baseName}`);
         }
     }
 
