@@ -71,15 +71,15 @@ class StatusTracker {
             });
         } else {
             const userData = this.statusData.get(userId);
-            if (userData.currentStatus !== status) {
+            // if (userData.currentStatus !== status) {
                 if (userData.startTime) {
                     const duration = timestamp - userData.startTime;
                     userData.totalTime[userData.currentStatus] += duration;
                 }
                 userData.currentStatus = status;
                 userData.startTime = timestamp;
-            }
-            console.log(this.statusData.get(userId), userData);
+            // }
+            // console.log(this.statusData.get(userId), userData, duration);
         }
     }
 
