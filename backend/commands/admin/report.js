@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const statusTracker = require('../../utils/statusTracker');
+const activityTracker = require('../../utils/activityTracker');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,7 +16,20 @@ module.exports = {
             return;
         }
 
-        const report = statusTracker.getDailyReport();
+        const statusReport = statusTracker.getDailyReport();
+        const activityReport = await activityTracker.getDailyReport(
+            interaction.client, 
+            process.env.ADMIN_IDS.split(',')
+        );
+
+        // Объединяем данные
+        const report = statusReport.map(status => {
+            const activity = activityReport.find(a => a.userId === status.userId) || { time: 0 };
+            return {
+                ...status,
+                activity: activity.time
+            };
+        });
 
         if (report.length === 0) {
             await interaction.editReply('Нет данных об активности');
@@ -24,11 +38,7 @@ module.exports = {
 
         const embed = {
             title: 'Текущая статистика',
-            description: report.map((u, i) => 
-                `${i + 1}. <@${u.userId}>:\n` +
-                `  • Статус онлайн: ${Math.floor(u.online / 60)}ч ${Math.round(u.online % 60)}м\n` +
-                `  • Статус отошел: ${Math.floor(u.away / 60)}ч ${Math.round(u.away % 60)}м`
-            ).join('\n\n'),
+            description: statusTracker.formatReport(report),
             color: 0x0099ff,
             timestamp: new Date().toISOString(),
             footer: {

@@ -49,14 +49,13 @@ class ActivityTracker {
         return `${hours}ч ${minutes}м`;
     }
 
-    async getDailyReport(client, adminIds, statusReport) {
+    async getDailyReport(client, adminIds) {
         const report = [];
         const now = new Date();
 
-        // Сначала добавляем всех пользователей с активностью
         for (const [userId, data] of this.userTime) {
             if(adminIds.includes(userId)) continue;
-            
+
             let total = data.totalTime;
             if (data.startTime) {
                 total += now - data.startTime;
@@ -64,43 +63,16 @@ class ActivityTracker {
 
             try {
                 const user = await client.users.fetch(userId);
-                report.push({ 
+                report.push({
                     userId: userId,
-                    time: total,
-                    statusTime: {
-                        online: 0,
-                        away: 0
-                    }
+                    time: total
                 });
             } catch (error) {
                 console.error('Error fetching user:', error);
             }
         }
 
-        // Добавляем или обновляем данные статусов
-        for (const statusData of statusReport) {
-            const existingUser = report.find(r => r.userId === statusData.userId);
-            if (existingUser) {
-                existingUser.statusTime.online = statusData.online;
-                existingUser.statusTime.away = statusData.away;
-            } else if (!adminIds.includes(statusData.userId)) {
-                try {
-                    const user = await client.users.fetch(statusData.userId);
-                    report.push({
-                        userId: statusData.userId,
-                        time: 0,
-                        statusTime: {
-                            online: statusData.online,
-                            away: statusData.away
-                        }
-                    });
-                } catch (error) {
-                    console.error('Ошибка получения пользователя:', error);
-                }
-            }
-        }
-
-        return report.sort((a, b) => b.time - a.time);
+        return report;
     }
 
     resetData() {

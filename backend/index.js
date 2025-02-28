@@ -147,17 +147,24 @@ client.on('ready', () => {
   schedule.scheduleJob('5 17 * * 1-5', async () => {
     if (!activityTracker.isWorkingTime()) return;
 
-    const report = statusTracker.getDailyReport();
+    const statusReport = statusTracker.getDailyReport();
+    const activityReport = await activityTracker.getDailyReport(client, ADMIN_IDS);
+
+    // Объединяем данные
+    const report = statusReport.map(status => {
+        const activity = activityReport.find(a => a.userId === status.userId) || { time: 0 };
+        return {
+            ...status,
+            activity: activity.time
+        };
+    });
+
     const channel = client.channels.cache.get(CHANNEL_ID);
 
     if (channel) {
         const embed = {
             title: 'Ежедневная статистика',
-            description: report.map((u, i) => 
-                `${i + 1}. <@${u.userId}>:\n` +
-                `  • Статус онлайн: ${Math.floor(u.online / 60)}ч ${Math.round(u.online % 60)}м\n` +
-                `  • Статус отошел: ${Math.floor(u.away / 60)}ч ${Math.round(u.away % 60)}м`
-            ).join('\n\n') || 'Нет данных об активности',
+            description: statusTracker.formatReport(report) || 'Нет данных об активности',
             color: 0x0099ff,
             timestamp: new Date().toISOString()
         };

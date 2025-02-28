@@ -153,6 +153,16 @@ class StatusTracker {
         }
         this.saveData();
     }
+
+    formatReport(report) {
+        return report.map((u, i) => 
+            `${i + 1}. <@${u.userId}>:\n` +
+            `  • Активность: ${activityTracker.formatTime(u.activity)}\n` +
+            `  • Статус онлайн: ${Math.floor(u.online / 60)}ч ${Math.round(u.online % 60)}м\n` +
+            `  • Статус отошел: ${Math.floor(u.away / 60)}ч ${Math.round(u.away % 60)}м\n` +
+            `  • Статус офлайн: ${Math.floor(u.offline / 60)}ч ${Math.round(u.offline % 60)}м`
+        ).join('\n\n');
+    }
 }
 
 module.exports = new StatusTracker(); 
