@@ -99,7 +99,6 @@ class StatusTracker {
 
     async resetAllStatuses(client) {
         const guild = client.guilds.cache.first();
-        console.log(guild);
         if (!guild) return;
 
         const bot = guild.members.me;
