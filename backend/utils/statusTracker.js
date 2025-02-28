@@ -145,9 +145,20 @@ class StatusTracker {
         return report;
     }
 
-    resetDailyStats() {
-        for (const data of this.statusData.values()) {
+    async resetDailyStats(client) {
+        const guild = client.guilds.cache.first();
+        if (!guild) return;
+
+        for (const [userId, data] of this.statusData.entries()) {
             data.totalTime = { online: 0, away: 0, offline: 0 };
+            data.currentStatus = '🔴';
+
+            try {
+                const member = await guild.members.fetch(userId);
+                await member.setNickname(`🔴 ${member.displayName}`);
+            } catch (error) {
+                console.error(`Ошибка обновления статуса для пользователя ${userId}:`, error);
+            }
         }
         this.saveData();
     }

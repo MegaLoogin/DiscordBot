@@ -167,8 +167,9 @@ client.on('ready', () => {
         await channel.send({ embeds: [embed] });
     }
 
-    activityTracker.resetData();
-    statusTracker.resetDailyStats();
+    // Сброс статусов после отправки отчета
+    statusTracker.resetDailyStats(client);
+    activityTracker.resetData(); // Сброс данных активности
   });
 
   // Проверка неактивности
@@ -229,5 +230,6 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
 setInterval(() => {
     statusTracker.resetAllStatuses(client);
 }, 15000); // Проверка каждую минуту
+
 
 module.exports = { client, gapi };
