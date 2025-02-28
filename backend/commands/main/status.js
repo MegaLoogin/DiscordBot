@@ -24,13 +24,26 @@ function parseNickname(nickname) {
     };
 }
 
+// Новая функция для изменения статуса пользователя
+async function changeUserStatus(member, status) {
+    const prefix = `${STATUS_EMOJIS[status]} `;
+    const maxNameLength = MAX_NICKNAME_LENGTH - prefix.length;
+    const newNick = prefix + member.displayName.slice(0, maxNameLength);
+
+    try {
+        await member.setNickname(newNick);
+    } catch (error) {
+        console.error(`Ошибка обновления статуса для пользователя ${member.displayName}:`, error);
+    }
+}
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('статус')
         .setDescription('Изменить статус активности')
         .addStringOption(option =>
             option.setName('status')
-                .setDescription('Your status')
+                .setDescription('Ваш статус')
                 .setRequired(true)
                 .addChoices(
                     { name: '🟢 Online', value: 'online' },
@@ -39,7 +52,7 @@ module.exports = {
                 ))
         .addUserOption(option =>
             option.setName('user')
-                .setDescription('User to change status (admins only)')
+                .setDescription('Пользователь для изменения статуса (только для администраторов)')
                 .setRequired(false))
         .setDefaultMemberPermissions(PermissionFlagsBits.ChangeNickname),
 
@@ -74,21 +87,13 @@ module.exports = {
             parseNickname(member.nickname) : 
             { baseName: currentName };
 
-        // Создаем новый никнейм с новым статусом
-        const prefix = `${STATUS_EMOJIS[status]} `;  // Убрали | из префикса
-        const maxNameLength = MAX_NICKNAME_LENGTH - prefix.length;
-        const newNick = prefix + baseName.slice(0, maxNameLength);
+        // Изменяем статус пользователя
+        await changeUserStatus(member, status);
 
-        try {
-            await member.setNickname(newNick);
-            await interaction.editReply(
-                targetUser ? 
-                `Статус пользователя ${baseName} изменен на "${STATUS_EMOJIS[status]}"` :
-                `Ваш статус изменен на "${STATUS_EMOJIS[status]}"`
-            );
-        } catch (error) {
-            console.error(error);
-            await interaction.editReply('Произошла ошибка при изменении статуса');
-        }
+        await interaction.editReply(
+            targetUser ? 
+            `Статус пользователя ${baseName} изменен на "${STATUS_EMOJIS[status]}"` :
+            `Ваш статус изменен на "${STATUS_EMOJIS[status]}"`
+        );
     },
 }; 

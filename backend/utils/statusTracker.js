@@ -155,7 +155,7 @@ class StatusTracker {
 
             try {
                 const member = await guild.members.fetch(userId);
-                await member.setNickname(`🔴 ${member.displayName}`);
+                await changeUserStatus(member, 'offline');
             } catch (error) {
                 console.error(`Ошибка обновления статуса для пользователя ${userId}:`, error);
             }
