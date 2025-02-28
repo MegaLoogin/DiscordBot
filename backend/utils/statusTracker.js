@@ -72,15 +72,12 @@ class StatusTracker {
             });
         } else {
             const userData = this.statusData.get(userId);
-            // if (userData.currentStatus !== status) {
-                if (userData.startTime) {
-                    const duration = timestamp - userData.startTime;
-                    userData.totalTime[userData.currentStatus] += duration;
-                }
-                userData.currentStatus = status;
-                userData.startTime = timestamp;
-            // }
-            // console.log(this.statusData.get(userId), userData, duration);
+            if (userData.startTime) {
+                const duration = timestamp - userData.startTime;
+                userData.totalTime[userData.currentStatus] += duration;
+            }
+            userData.currentStatus = status;
+            userData.startTime = timestamp;
         }
     }
 
@@ -117,7 +114,6 @@ class StatusTracker {
             const { currentStatus, baseName } = this.parseNickname(currentNick);
 
             if (!currentStatus) {
-                // Если нет статуса, добавляем оффлайн статус в ник
                 const newNick = `🔴 ${baseName}`;
                 try {
                     await member.setNickname(newNick);
@@ -126,7 +122,6 @@ class StatusTracker {
                 }
             }
 
-            // В любом случае обновляем статистику
             this.updateUserStatus(member.id, currentStatus ? currentNick : `🔴 ${baseName}`);
         }
 

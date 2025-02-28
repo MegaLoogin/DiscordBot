@@ -30,9 +30,7 @@ module.exports = {
             const cards = await tapi.getCardsOnList(list.id);
             const labels = (await tapi.getLabelsForBoard(boardId)).filter(v => v.name);
         
-            // Группировка по именам в скобках
             const nameStats = cards.reduce((acc, card) => {
-                // Ищем имя в последних скобках в названии
                 const match = card.name.match(/\(([^)]+)\)$/);
                 const name = match ? match[1].trim() : 'Без имени';
                 
@@ -40,10 +38,9 @@ module.exports = {
                 return acc;
             }, {});
         
-            // // Преобразуем в массив объектов
             const nameCounts = Object.entries(nameStats)
                 .map(([name, count]) => ({name, count}))
-                .sort((a, b) => b.count - a.count); // Сортировка по убыванию
+                .sort((a, b) => b.count - a.count);
         
             return {
                 count: cards.length,

@@ -22,7 +22,6 @@ module.exports = {
             process.env.ADMIN_IDS.split(',')
         );
 
-        // Объединяем данные
         const report = statusReport.map(status => {
             const activity = activityReport.find(a => a.userId === status.userId) || { time: 0 };
             return {

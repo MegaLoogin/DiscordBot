@@ -1,4 +1,4 @@
-const { Client, Collection, GatewayIntentBits, IntentsBitField } = require("discord.js");
+const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const deployCommands = require('./deploy-commands.js');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -58,11 +58,8 @@ for (const file of eventFiles) {
 	}
 }
 
-const schedule = require('node-schedule');
-
 const CHANNEL_ID = process.env.ACTIVITY_CHAN_ID;
 const DATA_FILE = path.join(__dirname, 'volume/user_stats.json');
-const CHECK_INTERVAL = 2 * 60 * 1000;
 
 const activityTracker = require('./utils/activityTracker');
 const statusTracker = require('./utils/statusTracker');
