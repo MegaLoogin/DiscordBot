@@ -240,4 +240,53 @@ function formatHoursAndMinutes(hours) {
     return `${h}ч ${m}м`;
 }
 
+// После других интервалов добавим новый для обновления статусов
+setInterval(async () => {
+    try {
+        const guild = client.guilds.cache.first();
+        if (!guild) return;
+
+        const members = await guild.members.fetch();
+        for (const [, member] of members) {
+            if (member.user.bot || ADMIN_IDS.includes(member.user.id)) continue;
+
+            const currentNick = member.nickname || member.user.globalName || member.user.username;
+            const { currentStatus, baseName } = statusTracker.parseNickname(currentNick);
+
+            // Если нет статуса или пользователь оффлайн, ставим красный статус
+            if (!currentStatus || member.presence?.status === 'offline' || !member.presence) {
+                const newNick = `🔴 ${baseName}`;
+                try {
+                    await member.setNickname(newNick);
+                    statusTracker.updateUserStatus(member.id, newNick);
+                } catch (error) {
+                    console.error(`Ошибка обновления статуса для ${member.displayName}:`, error);
+                }
+                continue;
+            }
+
+            // Обновляем статус в соответствии с текущим presence
+            const statusMap = {
+                'online': '🟢',
+                'idle': '🟡',
+                'dnd': '🟡'
+            };
+
+            const newStatus = statusMap[member.presence.status] || '🔴';
+            const newNick = `${newStatus} ${baseName}`;
+
+            try {
+                if (currentStatus !== newStatus) {
+                    await member.setNickname(newNick);
+                    statusTracker.updateUserStatus(member.id, newNick);
+                }
+            } catch (error) {
+                console.error(`Ошибка обновления статуса для ${member.displayName}:`, error);
+            }
+        }
+    } catch (error) {
+        console.error('Ошибка при обновлении статусов:', error);
+    }
+}, 2 * 60 * 1000); // 15 минут
+
 module.exports = { client, gapi };
