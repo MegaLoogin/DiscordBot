@@ -1,11 +1,24 @@
 const { Router } = require('express');
 const { getQueue } = require('./trello');
+const statusTracker = require('./statusTracker');
 
 const router = new Router();
 module.exports = router;
 
 router.get('/test', async (req, res) => {
     res.json({"status": "ok"});
+});
+
+router.get('/reset-statuses', async (req, res) => {
+    const { client } = require('../index');
+
+    try {
+        await statusTracker.resetDailyStats(client);
+        res.json({"status": "Статусы успешно сброшены"});
+    } catch (error) {
+        console.error('Ошибка при сбросе статусов:', error);
+        res.status(500).json({"status": "Ошибка при сбросе статусов"});
+    }
 });
 
 router.post('/sendTasksData', async (req, res) => {

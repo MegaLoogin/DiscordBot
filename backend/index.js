@@ -140,7 +140,7 @@ client.on('ready', () => {
   loadData();
 
   // Ежедневный отчет
-  schedule.scheduleJob('8 17 * * 1-5', async () => {
+  schedule.scheduleJob('5 17 * * 1-5', async () => {
     if (!activityTracker.isWorkingTime()) return;
 
     const statusReport = statusTracker.getDailyReport();
