@@ -253,8 +253,8 @@ setInterval(async () => {
             const currentNick = member.nickname || member.user.globalName || member.user.username;
             const { currentStatus, baseName } = statusTracker.parseNickname(currentNick);
 
-            // Если нет статуса или пользователь оффлайн, ставим красный статус
-            if (!currentStatus || member.presence?.status === 'offline' || !member.presence) {
+            // Если нет статуса, ставим красный статус
+            if (!currentStatus) {
                 const newNick = `🔴 ${baseName}`;
                 try {
                     await member.setNickname(newNick);
@@ -262,31 +262,11 @@ setInterval(async () => {
                 } catch (error) {
                     console.error(`Ошибка обновления статуса для ${member.displayName}:`, error);
                 }
-                continue;
-            }
-
-            // Обновляем статус в соответствии с текущим presence
-            const statusMap = {
-                'online': '🟢',
-                'idle': '🟡',
-                'dnd': '🟡'
-            };
-
-            const newStatus = statusMap[member.presence.status] || '🔴';
-            const newNick = `${newStatus} ${baseName}`;
-
-            try {
-                if (currentStatus !== newStatus) {
-                    await member.setNickname(newNick);
-                    statusTracker.updateUserStatus(member.id, newNick);
-                }
-            } catch (error) {
-                console.error(`Ошибка обновления статуса для ${member.displayName}:`, error);
             }
         }
     } catch (error) {
         console.error('Ошибка при обновлении статусов:', error);
     }
-}, 2 * 60 * 1000); // 15 минут
+}, 2 * 60 * 1000);
 
 module.exports = { client, gapi };
