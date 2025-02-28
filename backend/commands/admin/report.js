@@ -2,6 +2,12 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const activityTracker = require('../../utils/activityTracker');
 const statusTracker = require('../../utils/statusTracker');
 
+function formatHoursAndMinutes(hours) {
+    const h = Math.floor(hours);
+    const m = Math.round((hours - h) * 60);
+    return `${h}ч ${m}м`;
+}
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('отчет')
@@ -33,9 +39,8 @@ module.exports = {
             description: report.map((u, i) => 
                 `${i + 1}. <@${u.userId}>:\n` +
                 `  • Активность: ${activityTracker.formatTime(u.time)}\n` +
-                `  • Время онлайн: ${u.statusTime.online}ч\n` +
-                `  • Время отошел: ${u.statusTime.away}ч\n` +
-                `  • Текущий статус: ${u.status}`
+                `  • Время онлайн: ${formatHoursAndMinutes(u.statusTime.online)}\n` +
+                `  • Время отошел: ${formatHoursAndMinutes(u.statusTime.away)}`
             ).join('\n\n'),
             color: 0x0099ff,
             timestamp: new Date().toISOString(),

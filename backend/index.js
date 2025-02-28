@@ -157,9 +157,8 @@ client.on('ready', () => {
             description: report.map((u, i) => 
                 `${i + 1}. <@${u.userId}>:\n` +
                 `  • Активность: ${activityTracker.formatTime(u.time)}\n` +
-                `  • Время онлайн: ${u.statusTime.online}ч\n` +
-                `  • Время отошел: ${u.statusTime.away}ч\n` +
-                `  • Текущий статус: ${u.status}`
+                `  • Время онлайн: ${formatHoursAndMinutes(u.statusTime.online)}\n` +
+                `  • Время отошел: ${formatHoursAndMinutes(u.statusTime.away)}`
             ).join('\n\n') || 'Нет данных об активности',
             color: 0x0099ff,
             timestamp: new Date().toISOString()
@@ -233,5 +232,12 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
 setInterval(() => {
     statusTracker.resetAllStatuses(client);
 }, 60000); // Проверка каждую минуту
+
+// Добавить функцию форматирования в начало файла
+function formatHoursAndMinutes(hours) {
+    const h = Math.floor(hours);
+    const m = Math.round((hours - h) * 60);
+    return `${h}ч ${m}м`;
+}
 
 module.exports = { client, gapi };
