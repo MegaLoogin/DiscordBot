@@ -10,7 +10,6 @@ router.get('/test', async (req, res) => {
 });
 
 router.get('/reset-statuses', async (req, res) => {
-    console.log('GET /reset-statuses');
     const { client } = require('../index');
 
     try {
