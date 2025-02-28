@@ -76,7 +76,8 @@ class ActivityTracker {
                 };
 
                 report.push({ 
-                    tag: user.tag, 
+                    userId: userId,
+                    tag: user.tag,
                     time: total,
                     status: statusDisplayMap[statusInfo.status],
                     statusTime: {
@@ -95,6 +96,7 @@ class ActivityTracker {
                 try {
                     const user = await client.users.fetch(userId);
                     report.push({
+                        userId: userId,
                         tag: user.tag,
                         time: 0,
                         status: statusInfo.status,
