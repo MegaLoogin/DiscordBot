@@ -8,6 +8,21 @@ const STATUS_EMOJIS = {
 
 const MAX_NICKNAME_LENGTH = 32;
 
+// Функция для разбора никнейма на статус и имя
+function parseNickname(nickname) {
+    const statusMatch = nickname.match(/^([🟢🔴🟡])\s*\|\s*(.+)$/);
+    if (statusMatch) {
+        return {
+            currentStatus: statusMatch[1],
+            baseName: statusMatch[2]
+        };
+    }
+    return {
+        currentStatus: null,
+        baseName: nickname
+    };
+}
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('статус')
@@ -52,19 +67,20 @@ module.exports = {
             return;
         }
         
-        let originalNick = member.nickname || member.user.globalName || member.user.username;
-        originalNick = originalNick.replace(/^[🟢🔴🟡]\s*\|\s*/, '');
+        // Получаем текущий никнейм или глобальное имя
+        const currentNick = member.nickname || member.user.globalName || member.user.username;
+        const { baseName } = parseNickname(currentNick);
 
-        // Создаем новый никнейм и обрезаем его до 32 символов
+        // Создаем новый никнейм с новым статусом
         const prefix = `${STATUS_EMOJIS[status]} | `;
         const maxNameLength = MAX_NICKNAME_LENGTH - prefix.length;
-        const newNick = prefix + originalNick.slice(0, maxNameLength);
+        const newNick = prefix + baseName.slice(0, maxNameLength);
 
         try {
             await member.setNickname(newNick);
             await interaction.editReply(
                 targetUser ? 
-                `Статус пользователя ${member.displayName} изменен на "${STATUS_EMOJIS[status]}"` :
+                `Статус пользователя ${baseName} изменен на "${STATUS_EMOJIS[status]}"` :
                 `Ваш статус изменен на "${STATUS_EMOJIS[status]}"`
             );
         } catch (error) {

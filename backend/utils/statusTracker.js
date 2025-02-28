@@ -83,6 +83,20 @@ class StatusTracker {
         this.saveData();
     }
 
+    parseNickname(nickname) {
+        const statusMatch = nickname.match(/^([🟢🔴🟡])\s*\|\s*(.+)$/);
+        if (statusMatch) {
+            return {
+                currentStatus: statusMatch[1],
+                baseName: statusMatch[2]
+            };
+        }
+        return {
+            currentStatus: null,
+            baseName: nickname
+        };
+    }
+
     async resetAllStatuses(client) {
         const now = new Date();
         if (now.getHours() === WORK_END_HOUR && now.getMinutes() === 0) {
@@ -100,12 +114,13 @@ class StatusTracker {
                 if (member.user.bot) continue;
                 if (member.roles.highest.position >= bot.roles.highest.position) continue;
                 
-                let originalNick = member.nickname || member.user.globalName || member.user.username;
-                originalNick = originalNick.replace(/^[🟢🔴🟡]\s*\|\s*/, '');
+                const currentNick = member.nickname || member.user.globalName || member.user.username;
+                const { baseName } = this.parseNickname(currentNick);
+                const newNick = `🔴 | ${baseName}`;
                 
                 try {
-                    await member.setNickname(`🔴 | ${originalNick}`);
-                    this.updateUserStatus(member.id, `🔴 | ${originalNick}`);
+                    await member.setNickname(newNick);
+                    this.updateUserStatus(member.id, newNick);
                 } catch (error) {
                     console.error(`Ошибка сброса статуса для ${member.displayName}:`, error);
                 }
