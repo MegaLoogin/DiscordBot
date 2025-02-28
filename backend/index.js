@@ -131,7 +131,7 @@ async function sendReminder(userId) {
     }
     
     activityTracker.lastNotification.set(userId, Date.now());
-    saveData();
+    // saveData();
   } catch (error) {
     console.error('Ошибка отправки уведомления:', error);
   }
@@ -139,7 +139,7 @@ async function sendReminder(userId) {
 
 client.on('ready', () => {
   console.log(`Бот авторизован как ${client.user.tag}`);
-  loadData();
+  // loadData();
 
   // Ежедневный отчет
   schedule.scheduleJob('5 17 * * 1-5', async () => {

@@ -61,7 +61,6 @@ class ActivityTracker {
             }
 
             try {
-                const user = await client.users.fetch(userId);
                 report.push({
                     userId: userId,
                     time: total

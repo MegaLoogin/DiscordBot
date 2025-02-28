@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { getQueue } = require('./trello');
 const statusTracker = require('./statusTracker');
+const activityTracker = require('./activityTracker');
 
 const router = new Router();
 module.exports = router;
@@ -14,6 +15,7 @@ router.get('/reset-statuses', async (req, res) => {
 
     try {
         await statusTracker.resetDailyStats(client);
+        activityTracker.resetData();
         res.json({"status": "Статусы успешно сброшены"});
     } catch (error) {
         console.error('Ошибка при сбросе статусов:', error);
