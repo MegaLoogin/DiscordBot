@@ -114,8 +114,10 @@ class StatusTracker {
                 if (member.user.bot) continue;
                 if (member.roles.highest.position >= bot.roles.highest.position) continue;
                 
-                const currentNick = member.nickname || member.user.globalName || member.user.username;
-                const { baseName } = this.parseNickname(currentNick);
+                const currentName = member.user.globalName || member.user.username;
+                const { baseName } = member.nickname ? 
+                    this.parseNickname(member.nickname) : 
+                    { baseName: currentName };
                 const newNick = `🔴 | ${baseName}`;
                 
                 try {

@@ -68,8 +68,10 @@ module.exports = {
         }
         
         // Получаем текущий никнейм или глобальное имя
-        const currentNick = member.nickname || member.user.globalName || member.user.username;
-        const { baseName } = parseNickname(currentNick);
+        const currentName = member.user.globalName || member.user.username;
+        const { baseName } = member.nickname ? 
+            parseNickname(member.nickname) : 
+            { baseName: currentName };
 
         // Создаем новый никнейм с новым статусом
         const prefix = `${STATUS_EMOJIS[status]} | `;
