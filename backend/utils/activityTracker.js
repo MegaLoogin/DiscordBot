@@ -49,12 +49,11 @@ class ActivityTracker {
         return `${hours}ч ${minutes}м`;
     }
 
-    async getDailyReport(client, adminIds, statusData) {
+    async getDailyReport(client, adminIds, statusReport) {
         const report = [];
         const now = new Date();
 
-        const statusMap = new Map(statusData.map(data => [data.userId, data]));
-
+        // Сначала добавляем всех пользователей с активностью
         for (const [userId, data] of this.userTime) {
             if(adminIds.includes(userId)) continue;
             
@@ -65,24 +64,12 @@ class ActivityTracker {
 
             try {
                 const user = await client.users.fetch(userId);
-                const statusInfo = statusMap.get(userId) || { online: 0, away: 0, status: 'no data' };
-                
-                // Convert status for display
-                const statusDisplayMap = {
-                    'online': 'онлайн',
-                    'offline': 'оффлайн',
-                    'away': 'отошел',
-                    'no data': 'нет данных'
-                };
-
                 report.push({ 
                     userId: userId,
-                    tag: user.tag,
                     time: total,
-                    status: statusDisplayMap[statusInfo.status],
                     statusTime: {
-                        online: statusInfo.online,
-                        away: statusInfo.away
+                        online: 0,
+                        away: 0
                     }
                 });
             } catch (error) {
@@ -90,19 +77,21 @@ class ActivityTracker {
             }
         }
 
-        // Добавляем пользователей, которые есть только в данных статуса
-        for (const [userId, statusInfo] of statusMap) {
-            if (!this.userTime.has(userId) && !adminIds.includes(userId)) {
+        // Добавляем или обновляем данные статусов
+        for (const statusData of statusReport) {
+            const existingUser = report.find(r => r.userId === statusData.userId);
+            if (existingUser) {
+                existingUser.statusTime.online = statusData.online;
+                existingUser.statusTime.away = statusData.away;
+            } else if (!adminIds.includes(statusData.userId)) {
                 try {
-                    const user = await client.users.fetch(userId);
+                    const user = await client.users.fetch(statusData.userId);
                     report.push({
-                        userId: userId,
-                        tag: user.tag,
+                        userId: statusData.userId,
                         time: 0,
-                        status: statusInfo.status,
                         statusTime: {
-                            online: statusInfo.online,
-                            away: statusInfo.away
+                            online: statusData.online,
+                            away: statusData.away
                         }
                     });
                 } catch (error) {

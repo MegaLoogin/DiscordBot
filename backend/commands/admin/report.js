@@ -39,8 +39,8 @@ module.exports = {
             description: report.map((u, i) => 
                 `${i + 1}. <@${u.userId}>:\n` +
                 `  • Активность: ${activityTracker.formatTime(u.time)}\n` +
-                `  • Время онлайн: ${formatHoursAndMinutes(u.statusTime.online)}\n` +
-                `  • Время отошел: ${formatHoursAndMinutes(u.statusTime.away)}`
+                `  • Статус онлайн: ${Math.floor(u.statusTime.online)}ч ${Math.round((u.statusTime.online % 1) * 60)}м\n` +
+                `  • Статус отошел: ${Math.floor(u.statusTime.away)}ч ${Math.round((u.statusTime.away % 1) * 60)}м`
             ).join('\n\n'),
             color: 0x0099ff,
             timestamp: new Date().toISOString(),
