@@ -100,7 +100,7 @@ class StatusTracker {
                 if (member.user.bot) continue;
                 if (member.roles.highest.position >= bot.roles.highest.position) continue;
                 
-                let originalNick = member.nickname || member.user.username;
+                let originalNick = member.nickname || member.user.globalName || member.user.username;
                 originalNick = originalNick.replace(/^[🟢🔴🟡]\s*\|\s*/, '');
                 
                 try {

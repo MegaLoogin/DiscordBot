@@ -52,7 +52,7 @@ module.exports = {
             return;
         }
         
-        let originalNick = member.nickname || member.user.username;
+        let originalNick = member.nickname || member.user.globalName || member.user.username;
         originalNick = originalNick.replace(/^[🟢🔴🟡]\s*\|\s*/, '');
 
         // Создаем новый никнейм и обрезаем его до 32 символов
