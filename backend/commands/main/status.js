@@ -10,7 +10,6 @@ const MAX_NICKNAME_LENGTH = 32;
 
 // Функция для разбора никнейма на статус и имя
 function parseNickname(nickname) {
-    // Используем юникод категории для эмодзи, убираем разделитель
     const statusMatch = nickname.match(/^(\p{Emoji})\s*(.+)$/u);
     if (statusMatch) {
         return {
@@ -26,9 +25,15 @@ function parseNickname(nickname) {
 
 // Новая функция для изменения статуса пользователя
 async function changeUserStatus(member, status) {
+    const currentName = member.user.globalName || member.user.username;
+    const { baseName } = member.nickname ? 
+        parseNickname(member.nickname) : 
+        { baseName: currentName };
+
+    // Создаем новый никнейм с новым статусом
     const prefix = `${STATUS_EMOJIS[status]} `;
     const maxNameLength = MAX_NICKNAME_LENGTH - prefix.length;
-    const newNick = prefix + member.displayName.slice(0, maxNameLength);
+    const newNick = prefix + baseName.slice(0, maxNameLength);
 
     try {
         await member.setNickname(newNick);
@@ -81,12 +86,6 @@ module.exports = {
             return;
         }
         
-        // Получаем текущий никнейм или глобальное имя
-        const currentName = member.user.globalName || member.user.username;
-        const { baseName } = member.nickname ? 
-            parseNickname(member.nickname) : 
-            { baseName: currentName };
-
         // Изменяем статус пользователя
         await changeUserStatus(member, status);
 
