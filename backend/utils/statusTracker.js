@@ -47,17 +47,16 @@ class StatusTracker {
     }
 
     getUserStatus(nickname) {
-        const match = nickname.match(/^\[([^\]]+)\]/);
+        const match = nickname.match(/^([🟢🔴🟡])/);
         if (!match) return null;
         
-        // Convert Russian status to English
-        const statusMap = {
-            'онлайн': 'online',
-            'оффлайн': 'offline',
-            'отошел': 'away'
+        const emojiMap = {
+            '🟢': 'online',
+            '🔴': 'offline',
+            '🟡': 'away'
         };
         
-        return statusMap[match[1].toLowerCase()] || match[1].toLowerCase();
+        return emojiMap[match[1]] || null;
     }
 
     updateUserStatus(userId, nickname, timestamp = new Date()) {
@@ -102,11 +101,11 @@ class StatusTracker {
                 if (member.roles.highest.position >= bot.roles.highest.position) continue;
                 
                 let originalNick = member.nickname || member.user.username;
-                originalNick = originalNick.replace(/^\[[^\]]+\]\s*\|\s*/, '');
+                originalNick = originalNick.replace(/^[🟢🔴🟡]\s*\|\s*/, '');
                 
                 try {
-                    await member.setNickname(`[оффлайн] | ${originalNick}`);
-                    this.updateUserStatus(member.id, `[оффлайн] | ${originalNick}`);
+                    await member.setNickname(`🔴 | ${originalNick}`);
+                    this.updateUserStatus(member.id, `🔴 | ${originalNick}`);
                 } catch (error) {
                     console.error(`Ошибка сброса статуса для ${member.displayName}:`, error);
                 }
