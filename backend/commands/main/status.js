@@ -86,6 +86,12 @@ module.exports = {
             return;
         }
         
+        // Получаем текущий никнейм или глобальное имя
+        const currentName = member.user.globalName || member.user.username;
+        const { baseName } = member.nickname ? 
+            parseNickname(member.nickname) : 
+            { baseName: currentName };
+
         // Изменяем статус пользователя
         await changeUserStatus(member, status);
 
