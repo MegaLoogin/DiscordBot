@@ -79,6 +79,7 @@ class StatusTracker {
                 userData.currentStatus = status;
                 userData.startTime = timestamp;
             }
+            console.log(this.statusData.get(userId));
         }
     }
 
