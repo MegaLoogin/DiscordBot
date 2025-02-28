@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -12,13 +12,28 @@ module.exports = {
                     { name: 'Online', value: 'online' },
                     { name: 'Offline', value: 'offline' },
                     { name: 'Away', value: 'away' },
-                )),
+                ))
+        .addUserOption(option =>
+            option.setName('user')
+                .setDescription('User to change status (admins only)')
+                .setRequired(false))
+        .setDefaultMemberPermissions(PermissionFlagsBits.ChangeNickname),
 
     async execute(interaction) {
         await interaction.deferReply();
         const status = interaction.options.getString('status');
-        const member = interaction.member;
+        const targetUser = interaction.options.getUser('user');
         
+        // Если указан пользователь, проверяем права администратора
+        if (targetUser && !interaction.member.permissions.has('Administrator')) {
+            await interaction.editReply('Только администраторы могут менять статус других пользователей');
+            return;
+        }
+
+        const member = targetUser ? 
+            await interaction.guild.members.fetch(targetUser.id) : 
+            interaction.member;
+
         // Check permissions
         const bot = interaction.guild.members.me;
         if (!bot.permissions.has('ManageNicknames')) {
@@ -28,7 +43,7 @@ module.exports = {
 
         // Check role hierarchy
         if (member.roles.highest.position >= bot.roles.highest.position) {
-            await interaction.editReply('Бот не может изменить ваш никнейм, так как ваша роль выше роли бота');
+            await interaction.editReply('Бот не может изменить никнейм, так как роль пользователя выше роли бота');
             return;
         }
         
@@ -47,7 +62,11 @@ module.exports = {
 
         try {
             await member.setNickname(`[${statusMap[status]}] | ${originalNick}`);
-            await interaction.editReply(`Ваш статус изменен на "${statusMap[status]}"`);
+            await interaction.editReply(
+                targetUser ? 
+                `Статус пользователя ${member.user.tag} изменен на "${statusMap[status]}"` :
+                `Ваш статус изменен на "${statusMap[status]}"`
+            );
         } catch (error) {
             console.error(error);
             await interaction.editReply('Произошла ошибка при изменении статуса');

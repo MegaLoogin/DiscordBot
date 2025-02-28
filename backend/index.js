@@ -22,10 +22,6 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.GuildPresences,
         GatewayIntentBits.GuildMembers
-    ],
-    permissions: [
-        'MANAGE_NICKNAMES',
-        'CHANGE_NICKNAME'
     ]
 });
 const gapi = new GoogleAPI();
