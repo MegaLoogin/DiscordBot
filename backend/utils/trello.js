@@ -20,17 +20,6 @@ module.exports = {
         }
     },
 
-    // async getQueue(boardName, listName){
-    //     const boards = (await tapi.getBoards((await tapi.getMember("me")).id));
-    //     const boardId = boards.find(v => v.name == boardName).id;
-    //     const lists = (await tapi.getListsOnBoard(boardId, "id,name"));
-    //     const list = lists.find(v => v.name == listName);
-    //     const cards = await tapi.getCardsOnList(list.id);
-    //     const labels = (await tapi.getLabelsForBoard(boardId)).filter(v => v.name);
-
-    //     return {count: cards.length, urgentCount: cards.filter(v => v.idLabels.includes(labels.find(v => v.name == "Срочно").id)).length};
-    // },
-
     async getQueue(boardName, listName) {
         try{
             const boards = (await tapi.getBoards((await tapi.getMember("me")).id));

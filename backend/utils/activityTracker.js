@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 
 const ACTIVITY_FILE = path.join(__dirname, '../volume/activityData.json');
-const CHECK_INTERVAL = 2 * 60 * 1000;
 const WORK_START_HOUR = 10;
 const WORK_END_HOUR = 18;
 

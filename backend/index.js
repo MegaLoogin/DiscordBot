@@ -3,7 +3,6 @@ const deployCommands = require('./deploy-commands.js');
 const fs = require('node:fs');
 const path = require('node:path');
 const GoogleAPI = require("./utils/gapi.js");
-const cron = require('node-cron');
 
 const express = require('express');
 const router = require("./utils/router.js");
@@ -218,15 +217,11 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
 (async () => {
 	await gapi.authorize();
   await deployCommands();
-  // while(true){
-    try{
-      console.log(await client.login(process.env.DTOKEN));
-    }catch(e){
-      console.log(e);
-    }
-
-    // await new Promise(resolve => setTimeout(resolve, 10000))
-  // }
+  try{
+    console.log(await client.login(process.env.DTOKEN));
+  }catch(e){
+    console.log(e);
+  }
 })();
 
 (async () => {
