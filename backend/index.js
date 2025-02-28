@@ -63,7 +63,7 @@ const DATA_FILE = path.join(__dirname, 'volume/user_stats.json');
 
 const activityTracker = require('./utils/activityTracker');
 const statusTracker = require('./utils/statusTracker');
-const { schedule } = require("node-cron");
+const schedule = require('node-schedule');
 
 // Загрузка данных из файла
 function loadData() {
