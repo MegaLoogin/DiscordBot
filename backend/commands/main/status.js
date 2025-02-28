@@ -96,4 +96,6 @@ module.exports = {
             `Ваш статус изменен на "${STATUS_EMOJIS[status]}"`
         );
     },
+
+    changeUserStatus
 }; 

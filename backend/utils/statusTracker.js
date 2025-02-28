@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const activityTracker = require('./activityTracker');
+const { changeUserStatus } = require('../commands/main/status');
 
 const STATUS_FILE = path.join(__dirname, '../volume/status_stats.json');
 const WORK_START_HOUR = 10;
