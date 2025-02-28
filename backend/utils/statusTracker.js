@@ -138,10 +138,12 @@ class StatusTracker {
         for (const [userId, data] of this.statusData.entries()) {
             const totalOnline = Math.floor(data.totalTime.online / (1000 * 60));
             const totalAway = Math.floor(data.totalTime.away / (1000 * 60));
+            const totalOffline = Math.floor(data.totalTime.offline / (1000 * 60));
             report.push({
                 userId,
                 online: totalOnline,
                 away: totalAway,
+                offline: totalOffline,
                 status: data.currentStatus
             });
         }
