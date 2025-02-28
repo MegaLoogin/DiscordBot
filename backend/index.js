@@ -226,47 +226,9 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
 	app.listen(8181, () => console.log("Server started!"));
 })();
 
-console.log("test");
-
 // Добавить после существующих интервалов
 setInterval(() => {
     statusTracker.resetAllStatuses(client);
 }, 15000); // Проверка каждую минуту
-
-// Добавить функцию форматирования в начало файла
-function formatHoursAndMinutes(hours) {
-    const h = Math.floor(hours);
-    const m = Math.round((hours - h) * 60);
-    return `${h}ч ${m}м`;
-}
-
-// После других интервалов добавим новый для обновления статусов
-setInterval(async () => {
-    try {
-        const guild = client.guilds.cache.first();
-        if (!guild) return;
-
-        const members = await guild.members.fetch();
-        for (const [, member] of members) {
-            if (member.user.bot || ADMIN_IDS.includes(member.user.id)) continue;
-
-            const currentNick = member.nickname || member.user.globalName || member.user.username;
-            const { currentStatus, baseName } = statusTracker.parseNickname(currentNick);
-
-            // Если нет статуса, ставим красный статус
-            if (!currentStatus) {
-                const newNick = `🔴 ${baseName}`;
-                try {
-                    await member.setNickname(newNick);
-                    statusTracker.updateUserStatus(member.id, newNick);
-                } catch (error) {
-                    console.error(`Ошибка обновления статуса для ${member.displayName}:`, error);
-                }
-            }
-        }
-    } catch (error) {
-        console.error('Ошибка при обновлении статусов:', error);
-    }
-}, 2 * 60 * 1000);
 
 module.exports = { client, gapi };

@@ -98,34 +98,31 @@ class StatusTracker {
     }
 
     async resetAllStatuses(client) {
-        const now = new Date();
-        if (now.getHours() === WORK_END_HOUR && now.getMinutes() === 0) {
-            const guild = client.guilds.cache.first();
-            if (!guild) return;
+        const guild = client.guilds.cache.first();
+        if (!guild) return;
 
-            const bot = guild.members.me;
-            if (!bot.permissions.has('ManageNicknames')) {
-                console.error('Bot lacks permission to manage nicknames');
-                return;
-            }
+        const bot = guild.members.me;
+        if (!bot.permissions.has('ManageNicknames')) {
+            console.error('Bot lacks permission to manage nicknames');
+            return;
+        }
 
-            const members = await guild.members.fetch();
-            for (const [, member] of members) {
-                if (member.user.bot) continue;
-                if (member.roles.highest.position >= bot.roles.highest.position) continue;
-                
-                const currentName = member.user.globalName || member.user.username;
-                const { baseName } = member.nickname ? 
-                    this.parseNickname(member.nickname) : 
-                    { baseName: currentName };
-                const newNick = `🔴 ${baseName}`;
-                
-                try {
-                    await member.setNickname(newNick);
-                    this.updateUserStatus(member.id, newNick);
-                } catch (error) {
-                    console.error(`Ошибка сброса статуса для ${member.displayName}:`, error);
-                }
+        const members = await guild.members.fetch();
+        for (const [, member] of members) {
+            if (member.user.bot) continue;
+            if (member.roles.highest.position >= bot.roles.highest.position) continue;
+            
+            const currentName = member.user.globalName || member.user.username;
+            const { baseName } = member.nickname ? 
+                this.parseNickname(member.nickname) : 
+                { baseName: currentName };
+            const newNick = `🔴 ${baseName}`;
+            
+            try {
+                await member.setNickname(newNick);
+                this.updateUserStatus(member.id, newNick);
+            } catch (error) {
+                console.error(`Ошибка сброса статуса для ${member.displayName}:`, error);
             }
         }
     }
