@@ -1,4 +1,4 @@
-const { Client, Collection, GatewayIntentBits } = require("discord.js");
+const { Client, Collection, GatewayIntentBits, IntentsBitField } = require("discord.js");
 const deployCommands = require('./deploy-commands.js');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -24,8 +24,8 @@ const client = new Client({
         GatewayIntentBits.GuildMembers
     ],
     permissions: [
-        'ManageNicknames',
-        'ChangeNickname'
+        'MANAGE_NICKNAMES',
+        'CHANGE_NICKNAME'
     ]
 });
 const gapi = new GoogleAPI();
@@ -49,9 +49,6 @@ for (const folder of commandFolders) {
 		}
 	}
 }
-
-// const ACTIVITY_FILE = path.join(__dirname, 'volume/activityData.json');
-// const userActivity = loadActivityData();
 
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
