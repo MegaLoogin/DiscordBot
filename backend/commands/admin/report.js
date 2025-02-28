@@ -1,12 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const activityTracker = require('../../utils/activityTracker');
 const statusTracker = require('../../utils/statusTracker');
-
-function formatHoursAndMinutes(hours) {
-    const h = Math.floor(hours);
-    const m = Math.round((hours - h) * 60);
-    return `${h}ч ${m}м`;
-}
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -22,12 +15,7 @@ module.exports = {
             return;
         }
 
-        const statusReport = statusTracker.getDailyReport();
-        const report = await activityTracker.getDailyReport(
-            interaction.client, 
-            process.env.ADMIN_IDS.split(','),
-            statusReport
-        );
+        const report = statusTracker.getDailyReport();
 
         if (report.length === 0) {
             await interaction.editReply('Нет данных об активности');
@@ -38,9 +26,8 @@ module.exports = {
             title: 'Текущая статистика',
             description: report.map((u, i) => 
                 `${i + 1}. <@${u.userId}>:\n` +
-                `  • Активность: ${activityTracker.formatTime(u.time)}\n` +
-                `  • Статус онлайн: ${Math.floor(u.statusTime.online)}ч ${Math.round((u.statusTime.online % 1) * 60)}м\n` +
-                `  • Статус отошел: ${Math.floor(u.statusTime.away)}ч ${Math.round((u.statusTime.away % 1) * 60)}м`
+                `  • Статус онлайн: ${Math.floor(u.online)}ч ${Math.round((u.online % 1) * 60)}м\n` +
+                `  • Статус отошел: ${Math.floor(u.away)}ч ${Math.round((u.away % 1) * 60)}м`
             ).join('\n\n'),
             color: 0x0099ff,
             timestamp: new Date().toISOString(),

@@ -147,8 +147,7 @@ client.on('ready', () => {
   schedule.scheduleJob('5 17 * * 1-5', async () => {
     if (!activityTracker.isWorkingTime()) return;
 
-    const statusReport = statusTracker.getDailyReport();
-    const report = await activityTracker.getDailyReport(client, ADMIN_IDS, statusReport);
+    const report = statusTracker.getDailyReport();
     const channel = client.channels.cache.get(CHANNEL_ID);
 
     if (channel) {
@@ -156,9 +155,8 @@ client.on('ready', () => {
             title: 'Ежедневная статистика',
             description: report.map((u, i) => 
                 `${i + 1}. <@${u.userId}>:\n` +
-                `  • Активность: ${activityTracker.formatTime(u.time)}\n` +
-                `  • Статус онлайн: ${Math.floor(u.statusTime.online)}ч ${Math.round((u.statusTime.online % 1) * 60)}м\n` +
-                `  • Статус отошел: ${Math.floor(u.statusTime.away)}ч ${Math.round((u.statusTime.away % 1) * 60)}м`
+                `  • Статус онлайн: ${Math.floor(u.online)}ч ${Math.round((u.online % 1) * 60)}м\n` +
+                `  • Статус отошел: ${Math.floor(u.away)}ч ${Math.round((u.away % 1) * 60)}м`
             ).join('\n\n') || 'Нет данных об активности',
             color: 0x0099ff,
             timestamp: new Date().toISOString()
@@ -228,10 +226,12 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
 	app.listen(8181, () => console.log("Server started!"));
 })();
 
+console.log("test");
+
 // Добавить после существующих интервалов
 setInterval(() => {
     statusTracker.resetAllStatuses(client);
-}, 60000); // Проверка каждую минуту
+}, 15000); // Проверка каждую минуту
 
 // Добавить функцию форматирования в начало файла
 function formatHoursAndMinutes(hours) {
