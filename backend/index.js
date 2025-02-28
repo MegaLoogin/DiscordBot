@@ -66,6 +66,9 @@ const activityTracker = require('./utils/activityTracker');
 const statusTracker = require('./utils/statusTracker');
 const schedule = require('node-schedule');
 
+const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 10; // Начало рабочего дня
+const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 18; // Конец рабочего дня
+
 // Загрузка данных из файла
 function loadData() {
   try {
@@ -88,29 +91,11 @@ function loadData() {
     console.error('Ошибка загрузки данных:', error);
   }
 }
-
-// Сохранение данных в файл
-function saveData() {
-  const data = {
-    userTime: Array.from(activityTracker.userTime.entries()).map(([id, entry]) => [
-      id,
-      {
-        startTime: entry.startTime ? entry.startTime.getTime() : null,
-        totalTime: entry.totalTime
-      }
-    ]),
-    lastActivity: Array.from(activityTracker.lastActivity.entries()),
-    lastNotification: Array.from(activityTracker.lastNotification.entries())
-  };
-
-  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-}
-
 // Остальные функции остаются без изменений
 function isWorkingTime(date = new Date()) {
-  const day = date.getDay();
-  const hour = date.getHours();
-  return day >= 1 && day <= 5 && hour >= 10 && hour < 18;
+    const day = date.getDay();
+    const hour = date.getHours();
+    return day >= 1 && day <= 5 && hour >= WORK_START_HOUR && hour < WORK_END_HOUR;
 }
 
 function formatTime(ms) {
@@ -137,12 +122,26 @@ async function sendReminder(userId) {
   }
 }
 
+async function sendStatusReminder(userId) {
+    try {
+        const user = await client.users.fetch(userId);
+        await user.send('⚠️ Вы не установили статус "онлайн" или "ушел" через 15 минут после начала рабочего дня!');
+
+        const channel = client.channels.cache.get(CHANNEL_ID);
+        if (channel) {
+            await channel.send(`**Внимание:** <@${userId}> не установил статус на работе!`);
+        }
+    } catch (error) {
+        console.error('Ошибка отправки уведомления о статусе:', error);
+    }
+}
+
 client.on('ready', () => {
   console.log(`Бот авторизован как ${client.user.tag}`);
   // loadData();
 
   // Ежедневный отчет
-  schedule.scheduleJob('5 17 * * 1-5', async () => {
+  schedule.scheduleJob(`5 ${WORK_START_HOUR - 1} * * 1-5`, async () => {
     if (!activityTracker.isWorkingTime()) return;
 
     const statusReport = statusTracker.getDailyReport();
@@ -184,6 +183,22 @@ client.on('ready', () => {
         }
     });
   }, CHECK_INTERVAL);
+
+  // Вызов функции проверки статусов каждый день в 10:15
+  schedule.scheduleJob(`15 ${WORK_START_HOUR - 1} * * 1-5`, async () => {
+    client.guilds.cache.forEach(guild => {
+        guild.members.fetch().then(members => {
+            members.forEach(member => {
+                if (!member.user.bot) {
+                    const { currentStatus } = statusTracker.parseNickname(member.nickname || member.user.username);
+                    if (currentStatus !== '🟢' && currentStatus !== '🟡') {
+                        sendStatusReminder(member.id); // Отправляем уведомление
+                    }
+                }
+            });
+        });
+    });
+  });
 });
 
 // Отслеживание активности
@@ -230,7 +245,9 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
 
 // Добавить после существующих интервалов
 setInterval(() => {
-    statusTracker.resetAllStatuses(client);
+    if (isWorkingTime()) {
+        statusTracker.resetAllStatuses(client);
+    }
 }, 15000); // Проверка каждую минуту
 
 

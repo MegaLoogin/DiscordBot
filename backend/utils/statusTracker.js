@@ -139,8 +139,7 @@ class StatusTracker {
                 userId,
                 online: totalOnline,
                 away: totalAway,
-                offline: totalOffline,
-                status: data.currentStatus
+                offline: totalOffline
             });
         }
         return report;

@@ -8,6 +8,9 @@ const STATUS_EMOJIS = {
 
 const MAX_NICKNAME_LENGTH = 32;
 
+const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 10; // Начало рабочего дня
+const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 18; // Конец рабочего дня
+
 // Функция для разбора никнейма на статус и имя
 function parseNickname(nickname) {
     const statusMatch = nickname.match(/^(\p{Emoji})\s*(.+)$/u);
@@ -66,6 +69,24 @@ module.exports = {
         const status = interaction.options.getString('status');
         const targetUser = interaction.options.getUser('user');
         
+        // Проверяем, является ли пользователь администратором
+        const isAdmin = interaction.member.permissions.has('Administrator');
+
+        // Если не администратор, проверяем рабочее время
+        if (!isAdmin) {
+            const now = new Date();
+            const day = now.getDay();
+            const hour = now.getHours();
+
+            // Проверка, является ли текущее время рабочим
+            const isWorkingTime = day >= 1 && day <= 5 && hour >= WORK_START_HOUR && hour < WORK_END_HOUR;
+
+            if (!isWorkingTime) {
+                await interaction.editReply('Команда доступна только в рабочее время.');
+                return;
+            }
+        }
+
         if (targetUser && !interaction.member.permissions.has('Administrator')) {
             await interaction.editReply('Только администраторы могут менять статус других пользователей');
             return;
