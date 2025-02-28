@@ -76,9 +76,8 @@ const CHANNEL_ID = process.env.ACTIVITY_CHAN_ID;
 const DATA_FILE = path.join(__dirname, 'volume/user_stats.json');
 const CHECK_INTERVAL = 2 * 60 * 1000;
 
-let userTime = new Map();
-let lastActivity = new Map();
-let lastNotification = new Map();
+const activityTracker = require('./utils/activityTracker');
+const statusTracker = require('./utils/statusTracker');
 
 // const client = new Client({
 //   intents: [
@@ -98,7 +97,7 @@ function loadData() {
       const rawData = fs.readFileSync(DATA_FILE);
       const data = JSON.parse(rawData);
 
-      userTime = new Map(data.userTime.map(([id, entry]) => [
+      activityTracker.userTime = new Map(data.userTime.map(([id, entry]) => [
         id, 
         { 
           startTime: entry.startTime ? new Date(entry.startTime) : null,
@@ -106,8 +105,8 @@ function loadData() {
         }
       ]));
 
-      lastActivity = new Map(data.lastActivity);
-      lastNotification = new Map(data.lastNotification);
+      activityTracker.lastActivity = new Map(data.lastActivity);
+      activityTracker.lastNotification = new Map(data.lastNotification);
     }
   } catch (error) {
     console.error('Ошибка загрузки данных:', error);
@@ -117,15 +116,15 @@ function loadData() {
 // Сохранение данных в файл
 function saveData() {
   const data = {
-    userTime: Array.from(userTime.entries()).map(([id, entry]) => [
+    userTime: Array.from(activityTracker.userTime.entries()).map(([id, entry]) => [
       id,
       {
         startTime: entry.startTime ? entry.startTime.getTime() : null,
         totalTime: entry.totalTime
       }
     ]),
-    lastActivity: Array.from(lastActivity.entries()),
-    lastNotification: Array.from(lastNotification.entries())
+    lastActivity: Array.from(activityTracker.lastActivity.entries()),
+    lastNotification: Array.from(activityTracker.lastNotification.entries())
   };
 
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
@@ -155,7 +154,7 @@ async function sendReminder(userId) {
       await channel.send(`**Внимание:** <@${userId}> не активен более 4 часов!`);
     }
     
-    lastNotification.set(userId, Date.now());
+    activityTracker.lastNotification.set(userId, Date.now());
     saveData();
   } catch (error) {
     console.error('Ошибка отправки уведомления:', error);
@@ -168,63 +167,40 @@ client.on('ready', () => {
 
   // Ежедневный отчет
   schedule.scheduleJob('5 17 * * 1-5', async () => {
-    if (!isWorkingTime()) return;
+    if (!activityTracker.isWorkingTime()) return;
 
-    const report = [];
-    const now = new Date();
-
-    for (const [userId, data] of userTime) {
-      if(ADMIN_IDS.includes(userId)) continue;
-      let total = data.totalTime;
-      if (data.startTime) {
-        total += now - data.startTime;
-      }
-
-      try {
-        const user = await client.users.fetch(userId);
-        report.push({ tag: user.tag, time: total });
-      } catch (error) {
-        console.error('Ошибка получения пользователя:', error);
-      }
-    }
-
-    report.sort((a, b) => b.time - a.time);
+    const statusReport = statusTracker.getDailyReport();
+    const report = await activityTracker.getDailyReport(client, ADMIN_IDS, statusReport);
     const channel = client.channels.cache.get(CHANNEL_ID);
 
     if (channel) {
-      const embed = {
-        title: 'Ежедневная статистика активности',
-        description: report.map((u, i) => 
-          `${i + 1}. **${u.tag}** - ${formatTime(u.time)}`
-        ).join('\n') || 'Нет данных об активности',
-        color: 0x0099ff,
-        timestamp: new Date().toISOString()
-      };
-      await channel.send({ embeds: [embed] });
+        const embed = {
+            title: 'Ежедневная статистика',
+            description: report.map((u, i) => 
+                `${i + 1}. **${u.tag}**:\n` +
+                `  • Активность: ${activityTracker.formatTime(u.time)}\n` +
+                `  • Время онлайн: ${u.statusTime.online}ч\n` +
+                `  • Время отошел: ${u.statusTime.away}ч\n` +
+                `  • Текущий статус: ${u.status}`
+            ).join('\n\n') || 'Нет данных об активности',
+            color: 0x0099ff,
+            timestamp: new Date().toISOString()
+        };
+        await channel.send({ embeds: [embed] });
     }
 
-    // Сброс и сохранение данных
-    userTime.clear();
-    lastActivity.clear();
-    lastNotification.clear();
-    saveData();
+    activityTracker.resetData();
+    statusTracker.resetDailyStats();
   });
 
   // Проверка неактивности
   setInterval(() => {
-    if (!isWorkingTime()) return;
+    if (!activityTracker.isWorkingTime()) return;
 
-    const now = Date.now();
-    const fourHours = 4 * 60 * 60 * 1000;
-
-    lastActivity.forEach((activeTime, userId) => {
-      if(ADMIN_IDS.includes(userId)) return;
-      if (now - activeTime >= fourHours) {
-        const lastNotified = lastNotification.get(userId) || 0;
-        if (now - lastNotified >= fourHours) {
-          sendReminder(userId);
+    client.users.cache.forEach(user => {
+        if (activityTracker.checkActivity(user.id, ADMIN_IDS)) {
+            sendReminder(user.id);
         }
-      }
     });
   }, CHECK_INTERVAL);
 });
@@ -232,54 +208,30 @@ client.on('ready', () => {
 // Отслеживание активности
 client.on('messageCreate', message => {
   if (message.author.bot || ADMIN_IDS.includes(message.author.id)) return;
-  lastActivity.set(message.author.id, Date.now());
-  saveData();
+  activityTracker.updateMessageActivity(message.author.id);
 });
 
 client.on('voiceStateUpdate', (oldState, newState) => {
   const userId = newState.member.id;
-  if(ADMIN_IDS.includes(userId)) return;
+  if (ADMIN_IDS.includes(userId)) return;
   if (newState.channelId && !oldState.channelId) {
-    lastActivity.set(userId, Date.now());
-    saveData();
+    activityTracker.updateVoiceActivity(userId);
   }
 });
 
 client.on('presenceUpdate', (oldPresence, newPresence) => {
-  if (!isWorkingTime()) return;
-
+  if (!activityTracker.isWorkingTime()) return;
   const member = newPresence.member;
-  if (!member || member.user.bot) return;
-
-  const userId = member.user.id;
-
-  if(ADMIN_IDS.includes(userId)) return;
-
-  const now = new Date();
-
-  if (!userTime.has(userId)) {
-    userTime.set(userId, { startTime: null, totalTime: 0 });
-  }
-
-  const userData = userTime.get(userId);
-  const newStatus = newPresence.status;
-  const oldStatus = oldPresence?.status || 'offline';
-
-  if (newStatus !== oldStatus) {
-    if (newStatus !== 'offline') {
-      if (!userData.startTime) {
-        userData.startTime = now;
-      }
-    } else {
-      if (userData.startTime) {
-        userData.totalTime += now - userData.startTime;
-        userData.startTime = null;
-      }
-    }
-    saveData();
-  }
+  if (!member || member.user.bot || ADMIN_IDS.includes(member.user.id)) return;
+  activityTracker.updatePresence(member.user.id, oldPresence, newPresence);
 });
 
+// Добавить обработчик изменения никнейма
+client.on('guildMemberUpdate', (oldMember, newMember) => {
+    if (oldMember.displayName !== newMember.displayName) {
+        statusTracker.updateUserStatus(newMember.id, newMember.displayName);
+    }
+});
 
 // /**
 //  * Загружает данные активности из файла.
@@ -441,5 +393,10 @@ client.on('presenceUpdate', (oldPresence, newPresence) => {
 (async () => {
 	app.listen(8181, () => console.log("Server started!"));
 })();
+
+// Добавить после существующих интервалов
+setInterval(() => {
+    statusTracker.resetAllStatuses(client);
+}, 60000); // Проверка каждую минуту
 
 module.exports = { client, gapi };
