@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 const ACTIVITY_FILE = path.join(__dirname, '../volume/activityData.json');
-const WORK_START_HOUR = 10;
-const WORK_END_HOUR = 18;
+const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8;
+const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 17;
 
 class ActivityTracker {
     constructor() {

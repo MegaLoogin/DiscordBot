@@ -4,8 +4,8 @@ const activityTracker = require('./activityTracker');
 const { changeUserStatus } = require('../commands/main/status');
 
 const STATUS_FILE = path.join(__dirname, '../volume/status_stats.json');
-const WORK_START_HOUR = 10;
-const WORK_END_HOUR = 18;
+const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8;
+const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 17;
 
 class StatusTracker {
     constructor() {

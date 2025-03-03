@@ -66,8 +66,8 @@ const activityTracker = require('./utils/activityTracker');
 const statusTracker = require('./utils/statusTracker');
 const schedule = require('node-schedule');
 
-const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 10; // Начало рабочего дня
-const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 18; // Конец рабочего дня
+const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8; // Начало рабочего дня
+const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 17; // Конец рабочего дня
 
 // Загрузка данных из файла
 function loadData() {
@@ -141,7 +141,7 @@ client.on('ready', () => {
   // loadData();
 
   // Ежедневный отчет
-  schedule.scheduleJob(`5 ${WORK_START_HOUR - 1} * * 1-5`, async () => {
+  schedule.scheduleJob(`5 ${WORK_START_HOUR} * * 1-5`, async () => {
     if (!activityTracker.isWorkingTime()) return;
 
     const statusReport = statusTracker.getDailyReport();
@@ -185,7 +185,7 @@ client.on('ready', () => {
   }, CHECK_INTERVAL);
 
   // Вызов функции проверки статусов каждый день в 10:15
-  schedule.scheduleJob(`15 ${WORK_START_HOUR - 1} * * 1-5`, async () => {
+  schedule.scheduleJob(`15 ${WORK_START_HOUR} * * 1-5`, async () => {
     client.guilds.cache.forEach(guild => {
         guild.members.fetch().then(members => {
             members.forEach(member => {
