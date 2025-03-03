@@ -141,8 +141,8 @@ client.on('ready', () => {
   // loadData();
 
   // Ежедневный отчет
-  schedule.scheduleJob(`10 ${WORK_END_HOUR} * * 1-5`, async () => {
-    if (!activityTracker.isWorkingTime()) return;
+  schedule.scheduleJob(`15 ${WORK_END_HOUR} * * 1-5`, async () => {
+    // if (!activityTracker.isWorkingTime()) return;
 
     const statusReport = statusTracker.getDailyReport();
     const activityReport = await activityTracker.getDailyReport(client, ADMIN_IDS);
