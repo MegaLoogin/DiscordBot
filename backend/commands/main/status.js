@@ -57,12 +57,12 @@ module.exports = {
                     { name: '🟢 Online', value: 'online' },
                     { name: '🔴 Offline', value: 'offline' },
                     { name: '🟡 Away', value: 'away' },
-                ))
-        .addUserOption(option =>
-            option.setName('user')
-                .setDescription('Пользователь для изменения статуса (только для администраторов)')
-                .setRequired(false))
-        .setDefaultMemberPermissions(PermissionFlagsBits.ChangeNickname),
+                )),
+        // .addUserOption(option =>
+        //     option.setName('user')
+        //         .setDescription('Пользователь для изменения статуса (только для администраторов)')
+        //         .setRequired(false))
+        // .setDefaultMemberPermissions(PermissionFlagsBits.ChangeNickname),
 
     async execute(interaction) {
         await interaction.deferReply();
