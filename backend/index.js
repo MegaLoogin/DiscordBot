@@ -69,28 +69,7 @@ const schedule = require('node-schedule');
 const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8; // Начало рабочего дня
 const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 17; // Конец рабочего дня
 
-// Загрузка данных из файла
-function loadData() {
-  try {
-    if (fs.existsSync(DATA_FILE)) {
-      const rawData = fs.readFileSync(DATA_FILE);
-      const data = JSON.parse(rawData);
 
-      activityTracker.userTime = new Map(data.userTime.map(([id, entry]) => [
-        id, 
-        { 
-          startTime: entry.startTime ? new Date(entry.startTime) : null,
-          totalTime: entry.totalTime 
-        }
-      ]));
-
-      activityTracker.lastActivity = new Map(data.lastActivity);
-      activityTracker.lastNotification = new Map(data.lastNotification);
-    }
-  } catch (error) {
-    console.error('Ошибка загрузки данных:', error);
-  }
-}
 // Остальные функции остаются без изменений
 function isWorkingTime(date = new Date()) {
     const day = date.getDay();
@@ -98,31 +77,29 @@ function isWorkingTime(date = new Date()) {
     return day >= 1 && day <= 5 && hour >= WORK_START_HOUR && hour < WORK_END_HOUR;
 }
 
-function formatTime(ms) {
-  const seconds = Math.floor(ms / 1000);
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  return `${hours} ч. ${minutes} м.`;
-}
-
 async function sendReminder(userId) {
-  try {
-    const user = await client.users.fetch(userId);
-    await user.send('⚠️ Вы не проявляли активности более 4 часов в рабочее время!');
-    
-    const channel = client.channels.cache.get(CHANNEL_ID);
-    if (channel) {
-      await channel.send(`**Внимание:** <@${userId}> не активен более 4 часов!`);
+    // Проверяем, является ли пользователь администратором
+    if (ADMIN_IDS.includes(userId)) return;
+
+    try {
+        const user = await client.users.fetch(userId);
+        await user.send('⚠️ Вы не проявляли активности более 4 часов в рабочее время!');
+
+        const channel = client.channels.cache.get(CHANNEL_ID);
+        if (channel) {
+            await channel.send(`**Внимание:** <@${userId}> не активен более 4 часов!`);
+        }
+
+        activityTracker.lastNotification.set(userId, Date.now());
+    } catch (error) {
+        console.error('Ошибка отправки уведомления:', error);
     }
-    
-    activityTracker.lastNotification.set(userId, Date.now());
-    // saveData();
-  } catch (error) {
-    console.error('Ошибка отправки уведомления:', error);
-  }
 }
 
 async function sendStatusReminder(userId) {
+    // Проверяем, является ли пользователь администратором
+    if (ADMIN_IDS.includes(userId)) return;
+
     try {
         const user = await client.users.fetch(userId);
         await user.send('⚠️ Вы не установили статус "онлайн" или "ушел" через 15 минут после начала рабочего дня!');
@@ -198,6 +175,13 @@ client.on('ready', () => {
             });
         });
     });
+  });
+
+  // Запланируйте сброс данных перед началом рабочего дня
+  schedule.scheduleJob(`55 ${WORK_START_HOUR - 1} * * 1-5`, async () => {
+    console.log('Сброс данных активности и статусов перед началом рабочего дня...');
+    await statusTracker.resetDailyStats(client); // Сброс статусов
+    activityTracker.resetData(); // Сброс данных активности
   });
 });
 
