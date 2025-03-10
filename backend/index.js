@@ -114,7 +114,39 @@ async function sendStatusReminder(userId) {
 
 client.on('ready', () => {
   console.log(`Бот авторизован как ${client.user.tag}`);
-  // loadData();
+
+  // Инициализация ников пользователей
+  async function initializeUsernames() {
+    try {
+      const guilds = client.guilds.cache;
+      for (const guild of guilds.values()) {
+        const members = await guild.members.fetch();
+        for (const member of members.values()) {
+          if (member.user.bot) continue;
+          
+          const userId = member.id;
+          const username = member.displayName || member.user.username;
+          
+          // Проверяем и обновляем ники в обоих трекерах
+          if (!activityTracker.userNames.has(userId)) {
+            console.log(`Инициализация ника для пользователя ${userId}: ${username}`);
+            activityTracker.updateUserName(userId, username);
+          }
+          
+          if (!statusTracker.userNames.has(userId)) {
+            console.log(`Инициализация ника в статус-трекере для пользователя ${userId}: ${username}`);
+            statusTracker.updateUserName(userId, username);
+          }
+        }
+      }
+      console.log('Инициализация ников пользователей завершена');
+    } catch (error) {
+      console.error('Ошибка при инициализации ников пользователей:', error);
+    }
+  }
+
+  // Запускаем инициализацию ников
+  initializeUsernames();
 
   // Ежедневный отчет
   schedule.scheduleJob(`15 ${WORK_END_HOUR} * * 1-5`, async () => {
@@ -208,7 +240,17 @@ client.on('presenceUpdate', (oldPresence, newPresence) => {
 // Добавить обработчик изменения никнейма
 client.on('guildMemberUpdate', (oldMember, newMember) => {
     if (oldMember.displayName !== newMember.displayName) {
-        statusTracker.updateUserStatus(newMember.id, newMember.displayName);
+        const userId = newMember.id;
+        const newUsername = newMember.displayName || newMember.user.username;
+        
+        console.log(`Обновление ника пользователя ${userId}: ${oldMember.displayName} -> ${newUsername}`);
+        
+        // Обновляем ник в обоих трекерах
+        activityTracker.updateUserName(userId, newUsername);
+        statusTracker.updateUserName(userId, newUsername);
+        
+        // Обновляем статус пользователя
+        statusTracker.updateUserStatus(userId, newMember.displayName);
     }
 });
 
