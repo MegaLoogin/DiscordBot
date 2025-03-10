@@ -150,35 +150,45 @@ client.on('ready', () => {
 
   // Ежедневный отчет
   schedule.scheduleJob(`15 ${WORK_END_HOUR} * * 1-5`, async () => {
-    // if (!activityTracker.isWorkingTime()) return;
+    try {
+      const statusReport = statusTracker.getDailyReport();
+      const activityReport = await activityTracker.getDailyReport(client, ADMIN_IDS);
 
-    const statusReport = statusTracker.getDailyReport();
-    const activityReport = await activityTracker.getDailyReport(client, ADMIN_IDS);
+      // Создаем бэкап перед сбросом данных
+      const { createBackup, cleanupOldBackups } = require('./utils/router');
+      const backupPath = createBackup();
+      console.log(`Создан бэкап данных: ${backupPath}`);
+      
+      // Очищаем старые бэкапы
+      cleanupOldBackups();
 
-    // Объединяем данные
-    const report = statusReport.map(status => {
-        const activity = activityReport.find(a => a.userId === status.userId) || { time: 0 };
-        return {
-            ...status,
-            activity: activity.time
-        };
-    });
+      // Объединяем данные
+      const report = statusReport.map(status => {
+          const activity = activityReport.find(a => a.userId === status.userId) || { time: 0 };
+          return {
+              ...status,
+              activity: activity.time
+          };
+      });
 
-    const channel = client.channels.cache.get(CHANNEL_ID);
+      const channel = client.channels.cache.get(CHANNEL_ID);
 
-    if (channel) {
-        const embed = {
-            title: 'Ежедневная статистика',
-            description: statusTracker.formatReport(report) || 'Нет данных об активности',
-            color: 0x0099ff,
-            timestamp: new Date().toISOString()
-        };
-        await channel.send({ embeds: [embed] });
+      if (channel) {
+          const embed = {
+              title: 'Ежедневная статистика',
+              description: statusTracker.formatReport(report) || 'Нет данных об активности',
+              color: 0x0099ff,
+              timestamp: new Date().toISOString()
+          };
+          await channel.send({ embeds: [embed] });
+      }
+
+      // Сброс статусов после отправки отчета
+      await statusTracker.resetDailyStats(client);
+      activityTracker.resetData();
+    } catch (error) {
+      console.error('Ошибка при создании ежедневного отчета:', error);
     }
-
-    // Сброс статусов после отправки отчета
-    await statusTracker.resetDailyStats(client);
-    activityTracker.resetData(); // Сброс данных активности
   });
 
   // Проверка неактивности
