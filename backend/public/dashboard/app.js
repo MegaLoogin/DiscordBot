@@ -96,28 +96,53 @@ async function updateBoardStats() {
         const response = await fetch('/api/boards');
         if (!response.ok) throw new Error('Ошибка загрузки статистики досок');
         
-        const stats = await response.json();
-        const tbody = document.getElementById('boardStats');
-        tbody.innerHTML = '';
+        const data = await response.json();
+        
+        // Обновляем статистику по спискам
+        const listStatsBody = document.getElementById('listStats');
+        listStatsBody.innerHTML = '';
 
-        if (stats.length === 0) {
+        if (!data.byList || data.byList.length === 0) {
             const tr = document.createElement('tr');
-            tr.innerHTML = '<td colspan="5" class="text-center">Нет данных по доскам</td>';
-            tbody.appendChild(tr);
-            return;
+            tr.innerHTML = '<td colspan="3" class="text-center">Нет данных по спискам</td>';
+            listStatsBody.appendChild(tr);
+        } else {
+            data.byList.forEach(list => {
+                const tr = document.createElement('tr');
+                const boardsList = list.boards
+                    .map(board => `${board.boardName}: ${board.count}`)
+                    .join('<br>');
+                
+                tr.innerHTML = `
+                    <td>${list.listName}</td>
+                    <td class="text-center">${list.totalCards}</td>
+                    <td>${boardsList}</td>
+                `;
+                listStatsBody.appendChild(tr);
+            });
         }
 
-        stats.forEach(board => {
+        // Обновляем статистику по доскам
+        const boardStatsBody = document.getElementById('boardStats');
+        boardStatsBody.innerHTML = '';
+
+        if (!data.byBoard || data.byBoard.length === 0) {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${board.boardName}</td>
-                <td>${board.firstListName}</td>
-                <td class="text-center">${board.firstListCount}</td>
-                <td>${board.secondListName}</td>
-                <td class="text-center">${board.secondListCount}</td>
-            `;
-            tbody.appendChild(tr);
-        });
+            tr.innerHTML = '<td colspan="5" class="text-center">Нет данных по доскам</td>';
+            boardStatsBody.appendChild(tr);
+        } else {
+            data.byBoard.forEach(board => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${board.boardName}</td>
+                    <td>${board.firstListName}</td>
+                    <td class="text-center">${board.firstListCount}</td>
+                    <td>${board.secondListName}</td>
+                    <td class="text-center">${board.secondListCount}</td>
+                `;
+                boardStatsBody.appendChild(tr);
+            });
+        }
     } catch (error) {
         showError('Не удалось загрузить статистику досок');
         console.error(error);
