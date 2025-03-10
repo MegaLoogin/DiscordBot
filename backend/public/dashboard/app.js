@@ -94,13 +94,16 @@ async function updateUserStats(data) {
 async function updateBoardStats() {
     try {
         const response = await fetch('/api/boards');
-        if (!response.ok) throw new Error('Ошибка загрузки статистики досок');
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.details || error.error || 'Ошибка загрузки статистики досок');
+        }
         
         const groups = await response.json();
         const container = document.getElementById('boardGroups');
         container.innerHTML = '';
 
-        if (!groups || groups.length === 0) {
+        if (!Array.isArray(groups) || groups.length === 0) {
             container.innerHTML = '<div class="text-center">Нет данных по доскам</div>';
             return;
         }
@@ -164,8 +167,12 @@ async function updateBoardStats() {
             container.appendChild(groupDiv);
         });
     } catch (error) {
-        showError('Не удалось загрузить статистику досок');
+        showError(error.message || 'Не удалось загрузить статистику досок');
         console.error(error);
+        
+        // Очищаем контейнер и показываем сообщение об ошибке
+        const container = document.getElementById('boardGroups');
+        container.innerHTML = '<div class="text-center text-danger">Ошибка загрузки данных</div>';
     }
 }
 

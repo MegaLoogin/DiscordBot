@@ -163,7 +163,19 @@ module.exports = {
             return groups;
         } catch (e) {
             console.error('Ошибка при получении статистики досок:', e);
-            throw e;
+            
+            // В случае ошибки пытаемся вернуть кешированные данные, если они есть
+            if (fs.existsSync(CACHE_FILE)) {
+                try {
+                    const cacheData = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
+                    return cacheData.stats;
+                } catch (cacheError) {
+                    console.error('Ошибка при чтении кеша:', cacheError);
+                }
+            }
+            
+            // Если не удалось получить данные из кеша, возвращаем пустой массив
+            return [];
         }
     }
 };
