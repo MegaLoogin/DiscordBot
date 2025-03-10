@@ -138,26 +138,21 @@ async function updateBoardStats() {
             
             group.boards.forEach(board => {
                 const total = board.counts[0] + board.counts[1];
-                if (total > 0) { // Показываем только доски с карточками
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${board.boardName}</td>
-                        <td class="text-center">${board.counts[0]}</td>
-                        <td class="text-center">${board.counts[1]}</td>
-                        <td class="text-center">${total}</td>
-                    `;
-                    tbody.appendChild(tr);
-                }
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${board.boardName}</td>
+                    <td class="text-center">${board.counts[0]}</td>
+                    <td class="text-center">${board.counts[1]}</td>
+                    <td class="text-center">${total}</td>
+                `;
+                tbody.appendChild(tr);
             });
             
-            // Добавляем таблицу только если есть доски с карточками
-            const hasCards = group.boards.some(board => board.counts[0] + board.counts[1] > 0);
-            if (hasCards) {
-                table.appendChild(thead);
-                table.appendChild(tbody);
-                groupDiv.appendChild(table);
-                container.appendChild(groupDiv);
-            }
+            // Добавляем таблицу в любом случае
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            groupDiv.appendChild(table);
+            container.appendChild(groupDiv);
         });
 
         if (container.children.length === 0) {
