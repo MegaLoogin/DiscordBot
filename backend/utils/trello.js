@@ -84,6 +84,34 @@ module.exports = {
         }catch(e){
             console.log(e, listName, boardName);
         }
+    },
+
+    async getBoardsStats() {
+        try {
+            const boards = await tapi.getBoards((await tapi.getMember("me")).id);
+            const stats = [];
+
+            for (const board of boards) {
+                const lists = await tapi.getListsOnBoard(board.id, "id,name");
+                if (lists.length < 2) continue;
+
+                const firstListCards = await tapi.getCardsOnList(lists[0].id);
+                const secondListCards = await tapi.getCardsOnList(lists[1].id);
+
+                stats.push({
+                    boardName: board.name,
+                    firstListName: lists[0].name,
+                    secondListName: lists[1].name,
+                    firstListCount: firstListCards.length,
+                    secondListCount: secondListCards.length
+                });
+            }
+
+            return stats;
+        } catch (e) {
+            console.error('Ошибка при получении статистики досок:', e);
+            return [];
+        }
     }
 };
 
