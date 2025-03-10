@@ -16,34 +16,93 @@ class ActivityTracker {
     loadData() {
         try {
             if (fs.existsSync(ACTIVITY_FILE)) {
-                const data = JSON.parse(fs.readFileSync(ACTIVITY_FILE));
-                console.log('Загруженные данные:', data);
-                this.userTime = new Map(data.userTime);
-                this.lastActivity = new Map(data.lastActivity);
-                this.lastNotification = new Map(data.lastNotification);
-                
-                // Проверка данных после загрузки
-                for (const [userId, userData] of this.userTime) {
-                    console.log(`Данные пользователя ${userId}:`, userData);
-                    if (userData.totalTime === null) {
-                        console.warn(`Обнаружен null totalTime для пользователя ${userId}`);
-                        userData.totalTime = 0;
-                    }
+                const rawData = fs.readFileSync(ACTIVITY_FILE);
+                if (!rawData || rawData.length === 0) {
+                    console.warn('Файл активности пуст, создаём новый');
+                    return;
                 }
+
+                const data = JSON.parse(rawData);
+                console.log('Загруженные данные:', data);
+
+                // Проверяем структуру данных
+                if (!data.userTime || !Array.isArray(data.userTime)) {
+                    throw new Error('Некорректная структура данных userTime');
+                }
+
+                // Безопасное преобразование данных с валидацией
+                this.userTime = new Map(
+                    data.userTime.map(([userId, userData]) => {
+                        // Проверяем и корректируем данные пользователя
+                        const validatedData = {
+                            startTime: userData.startTime ? new Date(userData.startTime) : null,
+                            totalTime: this.validateTotalTime(userData.totalTime)
+                        };
+                        console.log(`Загружены данные пользователя ${userId}:`, validatedData);
+                        return [userId, validatedData];
+                    })
+                );
+
+                this.lastActivity = new Map(data.lastActivity || []);
+                this.lastNotification = new Map(data.lastNotification || []);
             }
         } catch (error) {
-            console.error('Ошибка загрузки данных активности:', error);
+            console.error('Критическая ошибка загрузки данных активности:', error);
+            // Создаём резервную копию проблемного файла
+            if (fs.existsSync(ACTIVITY_FILE)) {
+                const backupPath = `${ACTIVITY_FILE}.backup.${Date.now()}`;
+                fs.copyFileSync(ACTIVITY_FILE, backupPath);
+                console.log(`Создана резервная копия: ${backupPath}`);
+            }
+            // Инициализируем чистые данные
+            this.userTime = new Map();
+            this.lastActivity = new Map();
+            this.lastNotification = new Map();
         }
     }
 
+    validateTotalTime(totalTime) {
+        // Проверяем, что значение является числом и не отрицательное
+        if (typeof totalTime !== 'number' || isNaN(totalTime) || totalTime < 0) {
+            console.warn(`Некорректное значение totalTime: ${totalTime}, устанавливаем 0`);
+            return 0;
+        }
+        return totalTime;
+    }
+
     saveData() {
-        const data = {
-            userTime: Array.from(this.userTime.entries()),
-            lastActivity: Array.from(this.lastActivity.entries()),
-            lastNotification: Array.from(this.lastNotification.entries())
-        };
-        console.log('Сохранение данных:', data);
-        fs.writeFileSync(ACTIVITY_FILE, JSON.stringify(data));
+        try {
+            // Валидация данных перед сохранением
+            const dataToSave = {
+                userTime: Array.from(this.userTime.entries()).map(([userId, userData]) => [
+                    userId,
+                    {
+                        startTime: userData.startTime,
+                        totalTime: this.validateTotalTime(userData.totalTime)
+                    }
+                ]),
+                lastActivity: Array.from(this.lastActivity.entries()),
+                lastNotification: Array.from(this.lastNotification.entries())
+            };
+
+            // Создаём директорию, если она не существует
+            const dir = path.dirname(ACTIVITY_FILE);
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+
+            // Сначала пишем во временный файл
+            const tempFile = `${ACTIVITY_FILE}.temp`;
+            fs.writeFileSync(tempFile, JSON.stringify(dataToSave, null, 2));
+            
+            // Затем безопасно переименовываем
+            fs.renameSync(tempFile, ACTIVITY_FILE);
+            
+            console.log('Данные успешно сохранены');
+        } catch (error) {
+            console.error('Ошибка сохранения данных:', error);
+            throw error;
+        }
     }
 
     isWorkingTime() {
