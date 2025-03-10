@@ -17,9 +17,19 @@ class ActivityTracker {
         try {
             if (fs.existsSync(ACTIVITY_FILE)) {
                 const data = JSON.parse(fs.readFileSync(ACTIVITY_FILE));
+                console.log('Загруженные данные:', data);
                 this.userTime = new Map(data.userTime);
                 this.lastActivity = new Map(data.lastActivity);
                 this.lastNotification = new Map(data.lastNotification);
+                
+                // Проверка данных после загрузки
+                for (const [userId, userData] of this.userTime) {
+                    console.log(`Данные пользователя ${userId}:`, userData);
+                    if (userData.totalTime === null) {
+                        console.warn(`Обнаружен null totalTime для пользователя ${userId}`);
+                        userData.totalTime = 0;
+                    }
+                }
             }
         } catch (error) {
             console.error('Ошибка загрузки данных активности:', error);
@@ -32,6 +42,7 @@ class ActivityTracker {
             lastActivity: Array.from(this.lastActivity.entries()),
             lastNotification: Array.from(this.lastNotification.entries())
         };
+        console.log('Сохранение данных:', data);
         fs.writeFileSync(ACTIVITY_FILE, JSON.stringify(data));
     }
 
@@ -106,11 +117,24 @@ class ActivityTracker {
     }
 
     updatePresence(userId, oldPresence, newPresence) {
+        console.log(`Обновление присутствия для ${userId}:`, {
+            oldStatus: oldPresence?.status || 'offline',
+            newStatus: newPresence.status
+        });
+
         if (!this.userTime.has(userId)) {
+            console.log(`Инициализация нового пользователя ${userId}`);
             this.userTime.set(userId, { startTime: null, totalTime: 0 });
         }
 
         const userData = this.userTime.get(userId);
+        console.log(`Текущие данные пользователя ${userId}:`, userData);
+
+        if (userData.totalTime === null) {
+            console.warn(`Исправление null totalTime для пользователя ${userId}`);
+            userData.totalTime = 0;
+        }
+
         const now = new Date();
         const newStatus = newPresence.status;
         const oldStatus = oldPresence?.status || 'offline';
