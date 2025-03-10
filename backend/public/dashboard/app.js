@@ -112,12 +112,6 @@ async function updateBoardStats() {
             const groupDiv = document.createElement('div');
             groupDiv.className = 'mb-4';
             
-            // Добавляем заголовок группы
-            const groupHeader = document.createElement('h6');
-            groupHeader.className = 'mb-3';
-            groupHeader.textContent = group.listNames.join(' | ');
-            groupDiv.appendChild(groupHeader);
-            
             // Создаем таблицу для группы
             const table = document.createElement('table');
             table.className = 'table table-hover';

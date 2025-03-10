@@ -8,17 +8,25 @@ module.exports = {
 
     async execute(int) {
         await int.deferReply();
-        const stats = await getBoardsStats();
+        const groups = await getBoardsStats();
         
-        if (stats.length === 0) {
+        if (!Array.isArray(groups) || groups.length === 0) {
             await int.editReply('Не удалось получить статистику по доскам.');
             return;
         }
 
-        const message = stats
-            .map(board => `📋 ${board.boardName}:\n• ${board.firstListName}: ${board.firstListCount}\n• ${board.secondListName}: ${board.secondListCount}`)
-            .join('\n\n');
+        // Формируем сообщение для каждой группы
+        const message = groups.map(group => {
+            const header = `**${group.listNames.join(' | ')}**`;
+            
+            const boardStats = group.boards.map(board => {
+                const total = board.counts[0] + board.counts[1];
+                return `• ${board.boardName}:\n  ├ ${group.listNames[0]}: ${board.counts[0]}\n  ├ ${group.listNames[1]}: ${board.counts[1]}\n  └ Всего: ${total}`;
+            }).join('\n\n');
 
-        await int.editReply(message);
+            return `${header}\n${boardStats}`;
+        }).join('\n\n');
+
+        await int.editReply(message || 'Нет активных досок');
     }
 }; 
