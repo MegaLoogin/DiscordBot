@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCurrentTime();
     
     // Обновление времени каждую минуту
-    setInterval(updateCurrentTime, 60000);
+    // setInterval(updateCurrentTime, 60000);
     
     // Обработчик изменения даты
     document.getElementById('dateSelect').addEventListener('change', refreshData);
