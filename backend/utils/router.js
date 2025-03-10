@@ -219,3 +219,15 @@ router.get('/api/stats', async (req, res) => {
         res.status(500).json({ error: 'Внутренняя ошибка сервера' });
     }
 });
+
+// API endpoint для получения статистики досок
+router.get('/api/boards', async (req, res) => {
+    try {
+        const { getBoardsStats } = require('./trello');
+        const stats = await getBoardsStats();
+        res.json(stats);
+    } catch (error) {
+        console.error('Ошибка при получении статистики досок:', error);
+        res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+    }
+});

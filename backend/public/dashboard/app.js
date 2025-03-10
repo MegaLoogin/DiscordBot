@@ -4,46 +4,52 @@ let statusChart = null;
 async function loadAvailableDates() {
     try {
         const response = await fetch('/api/stats/available-dates');
-        const dates = await response.json();
+        if (!response.ok) throw new Error('Ошибка загрузки дат');
         
+        const dates = await response.json();
         const select = document.getElementById('dateSelect');
         select.innerHTML = '<option value="current">Сегодня</option>';
         
         dates.forEach(date => {
             const option = document.createElement('option');
             option.value = date;
-            // Форматируем дату для отображения
             const [year, month, day] = date.split('-');
             option.textContent = `${day}.${month}.${year}`;
             select.appendChild(option);
         });
     } catch (error) {
-        console.error('Ошибка при загрузке доступных дат:', error);
         showError('Не удалось загрузить список дат');
+        console.error(error);
     }
 }
 
 function showError(message) {
-    // Можно улучшить отображение ошибок, добавив toast или alert
-    alert(message);
+    const toast = new bootstrap.Toast(document.getElementById('errorToast'));
+    document.querySelector('.toast-body').textContent = message;
+    toast.show();
 }
 
-function formatTime(ms) {
-    if (!ms) return '0ч 0м';
-    const hours = Math.floor(ms / (1000 * 60 * 60));
-    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}ч ${minutes}м`;
+function formatTime(minutes) {
+    if (minutes === 0) return '0 мин';
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours > 0 ? hours + ' ч ' : ''}${mins > 0 ? mins + ' мин' : ''}`.trim();
 }
 
-function formatDateTime(timestamp) {
-    if (!timestamp) return 'Нет данных';
-    const date = new Date(timestamp);
-    return date.toLocaleString('ru-RU');
+function formatDate(date) {
+    return new Date(date).toLocaleString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
 }
 
 function updateCurrentTime() {
     const now = new Date();
-    document.getElementById('currentTime').textContent = now.toLocaleString('ru-RU');
+    document.getElementById('currentTime').textContent = formatDate(now);
 }
 
 function getStatusIndicator(status) {
@@ -56,54 +62,82 @@ function getStatusIndicator(status) {
     return `<span class="status-indicator ${statusClass}"></span>${status}`;
 }
 
-async function refreshData() {
-    try {
-        const selectedDate = document.getElementById('dateSelect').value;
-        const url = selectedDate === 'current' ? '/api/stats' : `/api/stats/${selectedDate}`;
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        
-        updateTable(data);
-        updateCharts(data);
-        updateCurrentTime();
-        
-        // Обновляем заголовок с выбранной датой
-        const dateDisplay = selectedDate === 'current' ? 'сегодня' : new Date(selectedDate).toLocaleDateString('ru-RU');
-        document.querySelector('.card-header h5').textContent = `Сводка активности за ${dateDisplay}`;
-    } catch (error) {
-        console.error('Ошибка при получении данных:', error);
-        showError('Не удалось загрузить данные');
-    }
-}
-
-function updateTable(data) {
+async function updateUserStats(data) {
     const tbody = document.getElementById('userStats');
     tbody.innerHTML = '';
 
-    if (!data || data.length === 0) {
-        const row = document.createElement('tr');
-        row.innerHTML = '<td colspan="7" class="text-center">Нет данных за выбранный период</td>';
-        tbody.appendChild(row);
+    if (data.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="7" class="text-center">Нет данных за выбранный период</td>';
+        tbody.appendChild(tr);
         return;
     }
 
     data.forEach(user => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
             <td>${user.username}</td>
-            <td>${getStatusIndicator(user.currentStatus)}</td>
-            <td class="time-cell">${formatTime(user.statusTime.online)}</td>
-            <td class="time-cell">${formatTime(user.statusTime.away)}</td>
-            <td class="time-cell">${formatTime(user.statusTime.offline)}</td>
-            <td class="time-cell">${formatTime(user.activityTime)}</td>
-            <td>${formatDateTime(user.lastActivity)}</td>
+            <td>
+                <span class="status-indicator status-${user.currentStatus}"></span>
+                ${user.currentStatus}
+            </td>
+            <td class="time-cell">${formatTime(Math.floor(user.statusTime.online / 60000))}</td>
+            <td class="time-cell">${formatTime(Math.floor(user.statusTime.away / 60000))}</td>
+            <td class="time-cell">${formatTime(Math.floor(user.statusTime.offline / 60000))}</td>
+            <td class="time-cell">${formatTime(Math.floor(user.activityTime / 60000))}</td>
+            <td>${user.lastActivity ? formatDate(user.lastActivity) : 'Нет данных'}</td>
         `;
-        tbody.appendChild(row);
+        tbody.appendChild(tr);
     });
+}
+
+async function updateBoardStats() {
+    try {
+        const response = await fetch('/api/boards');
+        if (!response.ok) throw new Error('Ошибка загрузки статистики досок');
+        
+        const stats = await response.json();
+        const tbody = document.getElementById('boardStats');
+        tbody.innerHTML = '';
+
+        if (stats.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td colspan="5" class="text-center">Нет данных по доскам</td>';
+            tbody.appendChild(tr);
+            return;
+        }
+
+        stats.forEach(board => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${board.boardName}</td>
+                <td>${board.firstListName}</td>
+                <td class="text-center">${board.firstListCount}</td>
+                <td>${board.secondListName}</td>
+                <td class="text-center">${board.secondListCount}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        showError('Не удалось загрузить статистику досок');
+        console.error(error);
+    }
+}
+
+async function refreshData() {
+    const selectedDate = document.getElementById('dateSelect').value;
+    try {
+        const response = await fetch(selectedDate === 'current' ? '/api/stats' : `/api/stats/${selectedDate}`);
+        if (!response.ok) throw new Error('Ошибка загрузки данных');
+        
+        const data = await response.json();
+        await updateUserStats(data);
+        await updateBoardStats();
+        updateCurrentTime();
+    } catch (error) {
+        showError('Не удалось загрузить данные');
+        console.error(error);
+    }
 }
 
 function updateCharts(data) {
@@ -180,17 +214,14 @@ function updateCharts(data) {
     });
 }
 
-// Обновляем данные каждую минуту только для текущего дня
-setInterval(() => {
-    if (document.getElementById('dateSelect').value === 'current') {
-        refreshData();
-    }
-}, 60000);
-
 // Инициализация
-document.addEventListener('DOMContentLoaded', () => {
-    loadAvailableDates();
-    refreshData();
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadAvailableDates();
+    await refreshData();
+    updateCurrentTime();
+    
+    // Обновление времени каждую минуту
+    setInterval(updateCurrentTime, 60000);
     
     // Обработчик изменения даты
     document.getElementById('dateSelect').addEventListener('change', refreshData);
