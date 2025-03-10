@@ -112,6 +112,12 @@ async function updateBoardStats() {
             const groupDiv = document.createElement('div');
             groupDiv.className = 'mb-4';
             
+            // Добавляем заголовок группы
+            const groupHeader = document.createElement('h6');
+            groupHeader.className = 'mb-3';
+            groupHeader.textContent = `Группа ${index + 1}: ${group.listNames.join(' | ')}`;
+            groupDiv.appendChild(groupHeader);
+            
             // Создаем таблицу для группы
             const table = document.createElement('table');
             table.className = 'table table-hover';
@@ -121,9 +127,9 @@ async function updateBoardStats() {
             thead.innerHTML = `
                 <tr>
                     <th>Название доски</th>
-                    <th>${group.listNames[0]}</th>
-                    <th>${group.listNames[1]}</th>
-                    <th>Всего</th>
+                    <th class="text-center">${group.listNames[0]}</th>
+                    <th class="text-center">${group.listNames[1]}</th>
+                    <th class="text-center">Всего</th>
                 </tr>
             `;
             
@@ -146,23 +152,22 @@ async function updateBoardStats() {
                 tbody.appendChild(tr);
             });
             
-            // Добавляем строку с итогами
-            const totalRow = document.createElement('tr');
-            totalRow.className = 'table-info';
-            totalRow.innerHTML = `
-                <td><strong>Итого</strong></td>
-                <td class="text-center"><strong>${totalFirst}</strong></td>
-                <td class="text-center"><strong>${totalSecond}</strong></td>
-                <td class="text-center"><strong>${totalFirst + totalSecond}</strong></td>
-            `;
-            tbody.appendChild(totalRow);
+            // Добавляем строку с итогами, если в группе больше одной доски
+            if (group.boards.length > 1) {
+                const totalRow = document.createElement('tr');
+                totalRow.className = 'table-info';
+                totalRow.innerHTML = `
+                    <td><strong>Итого по группе</strong></td>
+                    <td class="text-center"><strong>${totalFirst}</strong></td>
+                    <td class="text-center"><strong>${totalSecond}</strong></td>
+                    <td class="text-center"><strong>${totalFirst + totalSecond}</strong></td>
+                `;
+                tbody.appendChild(totalRow);
+            }
             
             // Собираем таблицу
             table.appendChild(thead);
             table.appendChild(tbody);
-            
-            // Добавляем заголовок группы и таблицу в контейнер
-            groupDiv.innerHTML = `<h6 class="mb-3">Группа ${index + 1}: ${group.listNames.join(' | ')}</h6>`;
             groupDiv.appendChild(table);
             container.appendChild(groupDiv);
         });

@@ -111,8 +111,10 @@ module.exports = {
 
             // Если кеш устарел или отсутствует, получаем новые данные
             const boards = await tapi.getBoards((await tapi.getMember("me")).id);
-            const boardGroups = new Map(); // Для группировки досок по спискам
+            const boardsData = [];
+            const listPairs = new Map();
 
+            // Собираем данные по всем доскам
             for (const board of boards) {
                 const lists = await tapi.getListsOnBoard(board.id, "id,name");
                 if (lists.length < 2) continue;
@@ -120,33 +122,42 @@ module.exports = {
                 const firstListCards = await tapi.getCardsOnList(lists[0].id);
                 const secondListCards = await tapi.getCardsOnList(lists[1].id);
 
-                // Создаем ключ группы из названий первых двух списков
-                const groupKey = `${lists[0].name}|${lists[1].name}`;
-                
-                if (!boardGroups.has(groupKey)) {
-                    boardGroups.set(groupKey, {
+                boardsData.push({
+                    boardName: board.name,
+                    firstListName: lists[0].name,
+                    secondListName: lists[1].name,
+                    firstListCount: firstListCards.length,
+                    secondListCount: secondListCards.length
+                });
+
+                // Создаем пары списков для группировки
+                const pairKey = `${lists[0].name}|${lists[1].name}`;
+                if (!listPairs.has(pairKey)) {
+                    listPairs.set(pairKey, {
                         listNames: [lists[0].name, lists[1].name],
                         boards: []
                     });
                 }
 
-                boardGroups.get(groupKey).boards.push({
+                listPairs.get(pairKey).boards.push({
                     boardName: board.name,
                     counts: [firstListCards.length, secondListCards.length]
                 });
             }
 
-            // Преобразуем Map в массив групп и сортируем доски внутри групп
-            const groups = Array.from(boardGroups.entries()).map(([key, value]) => ({
-                listNames: value.listNames,
-                boards: value.boards.sort((a, b) => {
+            // Преобразуем Map в массив групп
+            const groups = Array.from(listPairs.values());
+
+            // Сортируем доски внутри каждой группы по общему количеству карточек
+            groups.forEach(group => {
+                group.boards.sort((a, b) => {
                     const totalA = a.counts[0] + a.counts[1];
                     const totalB = b.counts[0] + b.counts[1];
                     return totalB - totalA;
-                })
-            }));
+                });
+            });
 
-            // Сортируем группы по общему количеству карточек
+            // Сортируем группы по общему количеству карточек во всех досках группы
             groups.sort((a, b) => {
                 const totalA = a.boards.reduce((sum, board) => sum + board.counts[0] + board.counts[1], 0);
                 const totalB = b.boards.reduce((sum, board) => sum + board.counts[0] + board.counts[1], 0);
