@@ -24,7 +24,8 @@ body {
 }
 
 .card-body {
-    padding: 1.25rem;
+    padding: 1.5rem;
+    min-height: 450px;
 }
 
 /* Таблица */
@@ -100,7 +101,9 @@ body {
 
 /* Графики */
 canvas {
-    max-height: 300px;
+    width: 100% !important;
+    height: 400px !important;
+    margin: 0 auto;
 }
 
 /* Toast уведомления */
@@ -140,6 +143,18 @@ canvas {
     .btn-primary {
         padding: 0.375rem 0.75rem;
     }
+
+    canvas {
+        height: 300px !important;
+    }
+    
+    .card-body {
+        min-height: 350px;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
 }
 
 /* Анимации */
@@ -163,8 +178,9 @@ canvas {
 /* Дополнительные стили для графиков */
 .chart-container {
     position: relative;
-    height: 300px;
+    height: 400px;
     width: 100%;
+    margin: 0 auto;
 }
 
 /* Стили для заголовков */
