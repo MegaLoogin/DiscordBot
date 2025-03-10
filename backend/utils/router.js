@@ -224,8 +224,57 @@ router.get('/api/stats', async (req, res) => {
 router.get('/api/boards', async (req, res) => {
     try {
         const { getBoardsStats } = require('./trello');
-        const stats = await getBoardsStats();
-        res.json(stats);
+        const data = await getBoardsStats();
+
+        // Преобразуем данные в нужный формат
+        const byBoard = data.reduce((acc, group) => {
+            group.boards.forEach(board => {
+                acc.push({
+                    boardName: board.boardName,
+                    firstListName: group.listNames[0],
+                    secondListName: group.listNames[1],
+                    firstListCount: board.counts[0],
+                    secondListCount: board.counts[1]
+                });
+            });
+            return acc;
+        }, []);
+
+        // Группируем по спискам
+        const listNames = new Set();
+        data.forEach(group => {
+            group.listNames.forEach(name => listNames.add(name));
+        });
+
+        const byList = Array.from(listNames).map(listName => {
+            const boards = [];
+            let totalCards = 0;
+
+            data.forEach(group => {
+                const listIndex = group.listNames.indexOf(listName);
+                if (listIndex !== -1) {
+                    group.boards.forEach(board => {
+                        const count = board.counts[listIndex];
+                        totalCards += count;
+                        boards.push({
+                            boardName: board.boardName,
+                            count: count
+                        });
+                    });
+                }
+            });
+
+            return {
+                listName,
+                totalCards,
+                boards: boards.sort((a, b) => b.count - a.count)
+            };
+        });
+
+        // Сортируем списки по общему количеству карточек
+        byList.sort((a, b) => b.totalCards - a.totalCards);
+
+        res.json({ byBoard, byList });
     } catch (error) {
         console.error('Ошибка при получении статистики досок:', error);
         res.status(500).json({ 
