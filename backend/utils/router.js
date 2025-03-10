@@ -228,6 +228,9 @@ router.get('/api/boards', async (req, res) => {
         res.json(stats);
     } catch (error) {
         console.error('Ошибка при получении статистики досок:', error);
-        res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+        res.status(500).json({ 
+            error: 'Не удалось получить статистику досок',
+            details: error.message 
+        });
     }
 });

@@ -136,10 +136,14 @@ module.exports = {
                 });
             }
 
-            // Преобразуем Map в массив групп
+            // Преобразуем Map в массив групп и сортируем доски внутри групп
             const groups = Array.from(boardGroups.entries()).map(([key, value]) => ({
                 listNames: value.listNames,
-                boards: value.boards.sort((a, b) => b.counts[0] + b.counts[1] - (a.counts[0] + a.counts[1]))
+                boards: value.boards.sort((a, b) => {
+                    const totalA = a.counts[0] + a.counts[1];
+                    const totalB = b.counts[0] + b.counts[1];
+                    return totalB - totalA;
+                })
             }));
 
             // Сортируем группы по общему количеству карточек
@@ -159,14 +163,7 @@ module.exports = {
             return groups;
         } catch (e) {
             console.error('Ошибка при получении статистики досок:', e);
-            
-            // В случае ошибки пытаемся вернуть кешированные данные, если они есть
-            if (fs.existsSync(CACHE_FILE)) {
-                const cacheData = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf8'));
-                return cacheData.stats;
-            }
-            
-            return [];
+            throw e;
         }
     }
 };
