@@ -172,6 +172,7 @@ async function refreshData() {
         await updateUserStats(data);
         await updateBoardStats();
         updateCurrentTime();
+        updateCharts(data);
     } catch (error) {
         showError('Не удалось загрузить данные');
         console.error(error);
