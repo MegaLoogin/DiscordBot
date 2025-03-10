@@ -192,9 +192,9 @@ canvas {
 /* Дополнительные стили для графиков */
 .chart-container {
     position: relative;
-    height: 400px;
     width: 100%;
-    margin: 0 auto;
+    max-height: 400px;
+    margin-bottom: 2rem;
 }
 
 /* Стили для заголовков */
@@ -265,5 +265,11 @@ h1 {
     
     #boardGroups h6 {
         font-size: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .chart-container {
+        max-height: 300px;
     }
 }

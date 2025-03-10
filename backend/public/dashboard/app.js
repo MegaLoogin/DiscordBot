@@ -180,6 +180,21 @@ async function refreshData() {
 }
 
 function updateCharts(data) {
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2,  // соотношение ширины к высоте 2:1
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Часы'
+                }
+            }
+        }
+    };
+
     // Обновление графика активности
     const activityData = {
         labels: data.map(user => user.username),
@@ -200,14 +215,10 @@ function updateCharts(data) {
         type: 'bar',
         data: activityData,
         options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Часы'
-                    }
+            ...commonOptions,
+            plugins: {
+                legend: {
+                    display: false // скрываем легенду, так как она не нужна для одного набора данных
                 }
             }
         }
@@ -234,19 +245,11 @@ function updateCharts(data) {
         type: 'bar',
         data: statusData,
         options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Часы'
-                    }
-                }
-            },
+            ...commonOptions,
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    position: 'bottom',
+                    display: true
                 }
             }
         }
