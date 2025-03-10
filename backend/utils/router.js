@@ -170,28 +170,48 @@ router.get('/api/stats/:date', (req, res) => {
 });
 
 // API endpoint для текущей статистики
-router.get('/api/stats', (req, res) => {
+router.get('/api/stats', async (req, res) => {
     try {
-        const activityData = Array.from(activityTracker.userTime.entries());
-        const combinedData = activityData.map(([userId, activity]) => {
-            const status = statusTracker.statusData.get(userId) || {
-                currentStatus: 'offline',
-                totalTime: { online: 0, away: 0, offline: 0 }
-            };
-            
-            const username = activityTracker.userNames.get(userId) || 
-                           statusTracker.userNames.get(userId) || 
-                           'Неизвестный пользователь';
+        const { client } = require('../index');
+        const guild = client.guilds.cache.first();
+        if (!guild) {
+            throw new Error('Сервер Discord не найден');
+        }
 
-            return {
-                userId,
-                username,
-                currentStatus: status.currentStatus || 'offline',
-                statusTime: status.totalTime || { online: 0, away: 0, offline: 0 },
-                activityTime: activity.totalTime || 0,
-                lastActivity: activityTracker.lastActivity.get(userId) || 0
-            };
-        });
+        // Получаем список всех пользователей
+        const members = await guild.members.fetch();
+        const ADMIN_IDS = process.env.ADMIN_IDS ? process.env.ADMIN_IDS.split(',') : [];
+
+        // Формируем данные для каждого пользователя
+        const combinedData = Array.from(members.values())
+            .filter(member => !member.user.bot && !ADMIN_IDS.includes(member.id))
+            .map(member => {
+                const userId = member.id;
+                const activity = activityTracker.userTime.get(userId) || { startTime: null, totalTime: 0 };
+                const status = statusTracker.statusData.get(userId) || {
+                    currentStatus: 'offline',
+                    totalTime: { online: 0, away: 0, offline: 0 }
+                };
+                
+                const username = member.displayName || member.user.username;
+
+                // Обновляем имена пользователей в трекерах, если они отсутствуют
+                if (!activityTracker.userNames.has(userId)) {
+                    activityTracker.updateUserName(userId, username);
+                }
+                if (!statusTracker.userNames.has(userId)) {
+                    statusTracker.updateUserName(userId, username);
+                }
+
+                return {
+                    userId,
+                    username,
+                    currentStatus: status.currentStatus || 'offline',
+                    statusTime: status.totalTime || { online: 0, away: 0, offline: 0 },
+                    activityTime: activity.totalTime || 0,
+                    lastActivity: activityTracker.lastActivity.get(userId) || 0
+                };
+            });
 
         res.json(combinedData);
     } catch (error) {
