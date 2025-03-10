@@ -1,0 +1,188 @@
+/* Основные стили */
+body {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.container {
+    max-width: 1400px;
+}
+
+/* Карточки */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    padding: 1rem;
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* Таблица */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+    border-top: none;
+    padding: 1rem;
+}
+
+.table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Индикаторы статуса */
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-online {
+    background-color: #28a745;
+}
+
+.status-away {
+    background-color: #ffc107;
+}
+
+.status-offline {
+    background-color: #dc3545;
+}
+
+/* Ячейки времени */
+.time-cell {
+    white-space: nowrap;
+    font-family: monospace;
+    text-align: right;
+}
+
+/* Селект и кнопки */
+.form-select {
+    min-width: 200px;
+    border-radius: 0.375rem;
+}
+
+.btn-primary {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+.btn-primary i {
+    margin-right: 0.5rem;
+}
+
+/* Время */
+#currentTime {
+    color: #6c757d;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Графики */
+canvas {
+    max-height: 300px;
+}
+
+/* Toast уведомления */
+.toast {
+    background-color: #fff;
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.toast-header {
+    border-bottom: none;
+    padding: 0.75rem 1rem;
+}
+
+.toast-body {
+    padding: 1rem;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .container {
+        padding: 0.5rem;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .table-responsive {
+        margin: 0 -1rem;
+    }
+
+    .form-select {
+        min-width: auto;
+    }
+
+    .btn-primary {
+        padding: 0.375rem 0.75rem;
+    }
+}
+
+/* Анимации */
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.btn-primary i.fa-sync-alt {
+    transition: transform 0.3s ease;
+}
+
+.btn-primary:active i.fa-sync-alt {
+    animation: spin 1s linear infinite;
+}
+
+/* Дополнительные стили для графиков */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* Стили для заголовков */
+h1 {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.card-header h5 {
+    color: #2c3e50;
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Стили для пустых данных */
+.no-data {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+    font-style: italic;
+}

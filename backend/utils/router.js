@@ -112,9 +112,9 @@ function cleanupOldBackups() {
 router.use('/dashboard', express.static(path.join(__dirname, '../public/dashboard')));
 
 // Редирект с корня на дашборд
-router.get('/', (req, res) => {
-    res.redirect('/dashboard');
-});
+// router.get('/', (req, res) => {
+//     res.redirect('/dashboard');
+// });
 
 // API endpoint для получения списка доступных дат
 router.get('/api/stats/available-dates', (req, res) => {

@@ -12,12 +12,20 @@ async function loadAvailableDates() {
         dates.forEach(date => {
             const option = document.createElement('option');
             option.value = date;
-            option.textContent = new Date(date).toLocaleDateString('ru-RU');
+            // Форматируем дату для отображения
+            const [year, month, day] = date.split('-');
+            option.textContent = `${day}.${month}.${year}`;
             select.appendChild(option);
         });
     } catch (error) {
         console.error('Ошибка при загрузке доступных дат:', error);
+        showError('Не удалось загрузить список дат');
     }
+}
+
+function showError(message) {
+    // Можно улучшить отображение ошибок, добавив toast или alert
+    alert(message);
 }
 
 function formatTime(ms) {
@@ -54,19 +62,34 @@ async function refreshData() {
         const url = selectedDate === 'current' ? '/api/stats' : `/api/stats/${selectedDate}`;
         
         const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         
         updateTable(data);
         updateCharts(data);
         updateCurrentTime();
+        
+        // Обновляем заголовок с выбранной датой
+        const dateDisplay = selectedDate === 'current' ? 'сегодня' : new Date(selectedDate).toLocaleDateString('ru-RU');
+        document.querySelector('.card-header h5').textContent = `Сводка активности за ${dateDisplay}`;
     } catch (error) {
         console.error('Ошибка при получении данных:', error);
+        showError('Не удалось загрузить данные');
     }
 }
 
 function updateTable(data) {
     const tbody = document.getElementById('userStats');
     tbody.innerHTML = '';
+
+    if (!data || data.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = '<td colspan="7" class="text-center">Нет данных за выбранный период</td>';
+        tbody.appendChild(row);
+        return;
+    }
 
     data.forEach(user => {
         const row = document.createElement('tr');
