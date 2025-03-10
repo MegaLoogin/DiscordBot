@@ -10,6 +10,7 @@ class ActivityTracker {
         this.userTime = new Map();
         this.lastActivity = new Map();
         this.lastNotification = new Map();
+        this.userNames = new Map();
         this.loadData();
     }
 
@@ -45,6 +46,7 @@ class ActivityTracker {
 
                 this.lastActivity = new Map(data.lastActivity || []);
                 this.lastNotification = new Map(data.lastNotification || []);
+                this.userNames = new Map(data.userNames || []);
             }
         } catch (error) {
             console.error('Критическая ошибка загрузки данных активности:', error);
@@ -58,6 +60,7 @@ class ActivityTracker {
             this.userTime = new Map();
             this.lastActivity = new Map();
             this.lastNotification = new Map();
+            this.userNames = new Map();
         }
     }
 
@@ -82,7 +85,8 @@ class ActivityTracker {
                     }
                 ]),
                 lastActivity: Array.from(this.lastActivity.entries()),
-                lastNotification: Array.from(this.lastNotification.entries())
+                lastNotification: Array.from(this.lastNotification.entries()),
+                userNames: Array.from(this.userNames.entries())
             };
 
             // Создаём директорию, если она не существует
@@ -131,8 +135,10 @@ class ActivityTracker {
             }
 
             try {
+                const username = this.userNames.get(userId) || 'Неизвестный пользователь';
                 report.push({
                     userId: userId,
+                    username: username,
                     time: total
                 });
             } catch (error) {
@@ -147,6 +153,7 @@ class ActivityTracker {
         this.userTime.clear();
         this.lastActivity.clear();
         this.lastNotification.clear();
+        this.userNames.clear();
         this.saveData();
     }
 
@@ -181,6 +188,11 @@ class ActivityTracker {
             newStatus: newPresence.status
         });
 
+        if (newPresence.member) {
+            const username = newPresence.member.displayName || newPresence.member.user.username;
+            this.updateUserName(userId, username);
+        }
+
         if (!this.userTime.has(userId)) {
             console.log(`Инициализация нового пользователя ${userId}`);
             this.userTime.set(userId, { startTime: null, totalTime: 0 });
@@ -209,6 +221,13 @@ class ActivityTracker {
                     userData.startTime = null;
                 }
             }
+            this.saveData();
+        }
+    }
+
+    updateUserName(userId, username) {
+        if (userId && username) {
+            this.userNames.set(userId, username);
             this.saveData();
         }
     }

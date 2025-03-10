@@ -10,6 +10,7 @@ const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 17;
 class StatusTracker {
     constructor() {
         this.statusData = new Map();
+        this.userNames = new Map();
         this.loadData();
     }
 
@@ -171,6 +172,21 @@ class StatusTracker {
             `  • Статус отошел: ${Math.floor(u.away / 60)}ч ${Math.round(u.away % 60)}м\n` +
             `  • Статус офлайн: ${Math.floor(u.offline / 60)}ч ${Math.round(u.offline % 60)}м`
         ).join('\n\n');
+    }
+
+    updateUserName(userId, username) {
+        if (userId && username) {
+            this.userNames.set(userId, username);
+            this.saveData();
+        }
+    }
+
+    updatePresence(newPresence) {
+        if (newPresence.member) {
+            const userId = newPresence.member.id;
+            const username = newPresence.member.displayName || newPresence.member.user.username;
+            this.updateUserName(userId, username);
+        }
     }
 }
 
