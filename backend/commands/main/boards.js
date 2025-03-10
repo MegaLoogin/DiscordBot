@@ -24,9 +24,18 @@ module.exports = {
             for (const group of groups) {
                 // Создаем заголовок таблицы
                 let table = `\`\`\`\n${group.listNames.join(' | ')}\n`;
-                table += '─'.repeat(60) + '\n';
-                table += `Название доски${' '.repeat(20)}${group.listNames[0].padStart(8)}  ${group.listNames[1].padStart(8)}  Всего\n`;
-                table += '─'.repeat(60) + '\n';
+                table += '─'.repeat(50) + '\n';
+
+                // Определяем максимальную длину для первой колонки
+                const maxBoardLength = Math.max(
+                    ...group.boards.map(b => b.boardName.length),
+                    'Название доски'.length
+                );
+
+                // Форматируем заголовки столбцов с учетом максимальной длины
+                const firstColumnWidth = maxBoardLength + 2;
+                table += `${'Название доски'.padEnd(firstColumnWidth)}${group.listNames[0].padStart(8)}    ${group.listNames[1].padStart(8)}\n`;
+                table += '─'.repeat(50) + '\n';
 
                 // Если новая таблица не поместится в текущее сообщение, отправляем текущее и начинаем новое
                 if (currentMessage && (currentMessage.length + table.length > MESSAGE_LIMIT)) {
@@ -45,9 +54,8 @@ module.exports = {
 
                 // Добавляем строки с данными
                 for (const board of group.boards) {
-                    const total = board.counts[0] + board.counts[1];
-                    const boardName = board.boardName.padEnd(30);
-                    const row = `${boardName}${board.counts[0].toString().padStart(8)}  ${board.counts[1].toString().padStart(8)}  ${total.toString().padStart(5)}\n`;
+                    const boardName = board.boardName.padEnd(firstColumnWidth);
+                    const row = `${boardName}${board.counts[0].toString().padStart(8)}    ${board.counts[1].toString().padStart(8)}\n`;
 
                     // Если строка не поместится в текущее сообщение, отправляем текущее и начинаем новое
                     if (currentMessage.length + row.length > MESSAGE_LIMIT) {
