@@ -25,7 +25,17 @@ body {
 
 .card-body {
     padding: 1.5rem;
+}
+
+/* Специальные стили для карточек с графиками */
+.chart-card .card-body {
     min-height: 450px;
+}
+
+/* Специальные стили для верхних карточек */
+.top-card .card-body {
+    min-height: auto;
+    padding: 1rem;
 }
 
 /* Таблица */
@@ -148,8 +158,12 @@ canvas {
         height: 300px !important;
     }
     
-    .card-body {
+    .chart-card .card-body {
         min-height: 350px;
+    }
+    
+    .top-card .card-body {
+        min-height: auto;
     }
     
     .chart-container {
