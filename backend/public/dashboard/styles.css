@@ -216,3 +216,54 @@ h1 {
     color: #6c757d;
     font-style: italic;
 }
+
+/* Стили для групп досок */
+#boardGroups {
+    margin-top: 1rem;
+}
+
+#boardGroups h6 {
+    color: #495057;
+    font-weight: 600;
+    padding: 0.5rem 0;
+    border-bottom: 2px solid #e9ecef;
+}
+
+#boardGroups .table {
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    background-color: white;
+    border-radius: 0.5rem;
+}
+
+#boardGroups .table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    text-align: center;
+}
+
+#boardGroups .table thead th:first-child {
+    text-align: left;
+}
+
+#boardGroups .table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+#boardGroups .table-info {
+    background-color: #e9ecef !important;
+}
+
+#boardGroups .table-info:hover {
+    background-color: #dee2e6 !important;
+}
+
+@media (max-width: 768px) {
+    #boardGroups .table {
+        font-size: 0.9rem;
+    }
+    
+    #boardGroups h6 {
+        font-size: 1rem;
+    }
+}

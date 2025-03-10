@@ -111,8 +111,7 @@ module.exports = {
 
             // Если кеш устарел или отсутствует, получаем новые данные
             const boards = await tapi.getBoards((await tapi.getMember("me")).id);
-            const stats = [];
-            const listGroups = new Map(); // Для группировки по спискам
+            const boardGroups = new Map(); // Для группировки досок по спискам
 
             for (const board of boards) {
                 const lists = await tapi.getListsOnBoard(board.id, "id,name");
@@ -121,51 +120,43 @@ module.exports = {
                 const firstListCards = await tapi.getCardsOnList(lists[0].id);
                 const secondListCards = await tapi.getCardsOnList(lists[1].id);
 
-                // Добавляем данные в обычный массив
-                stats.push({
+                // Создаем ключ группы из названий первых двух списков
+                const groupKey = `${lists[0].name}|${lists[1].name}`;
+                
+                if (!boardGroups.has(groupKey)) {
+                    boardGroups.set(groupKey, {
+                        listNames: [lists[0].name, lists[1].name],
+                        boards: []
+                    });
+                }
+
+                boardGroups.get(groupKey).boards.push({
                     boardName: board.name,
-                    firstListName: lists[0].name,
-                    secondListName: lists[1].name,
-                    firstListCount: firstListCards.length,
-                    secondListCount: secondListCards.length
+                    counts: [firstListCards.length, secondListCards.length]
                 });
-
-                // Группируем по названиям списков
-                const firstListKey = lists[0].name;
-                const secondListKey = lists[1].name;
-
-                if (!listGroups.has(firstListKey)) {
-                    listGroups.set(firstListKey, { listName: firstListKey, boards: new Map() });
-                }
-                if (!listGroups.has(secondListKey)) {
-                    listGroups.set(secondListKey, { listName: secondListKey, boards: new Map() });
-                }
-
-                listGroups.get(firstListKey).boards.set(board.name, firstListCards.length);
-                listGroups.get(secondListKey).boards.set(board.name, secondListCards.length);
             }
 
-            // Преобразуем Map в массив и считаем общее количество для каждого списка
-            const groupedStats = Array.from(listGroups.values()).map(group => ({
-                listName: group.listName,
-                totalCards: Array.from(group.boards.values()).reduce((sum, count) => sum + count, 0),
-                boards: Array.from(group.boards.entries()).map(([boardName, count]) => ({
-                    boardName,
-                    count
-                }))
-            })).sort((a, b) => b.totalCards - a.totalCards); // Сортируем по общему количеству карточек
+            // Преобразуем Map в массив групп
+            const groups = Array.from(boardGroups.entries()).map(([key, value]) => ({
+                listNames: value.listNames,
+                boards: value.boards.sort((a, b) => b.counts[0] + b.counts[1] - (a.counts[0] + a.counts[1]))
+            }));
+
+            // Сортируем группы по общему количеству карточек
+            groups.sort((a, b) => {
+                const totalA = a.boards.reduce((sum, board) => sum + board.counts[0] + board.counts[1], 0);
+                const totalB = b.boards.reduce((sum, board) => sum + board.counts[0] + board.counts[1], 0);
+                return totalB - totalA;
+            });
 
             // Сохраняем новые данные в кеш
             const cacheData = {
                 timestamp: Date.now(),
-                stats: {
-                    byBoard: stats,
-                    byList: groupedStats
-                }
+                stats: groups
             };
             fs.writeFileSync(CACHE_FILE, JSON.stringify(cacheData, null, 2));
 
-            return cacheData.stats;
+            return groups;
         } catch (e) {
             console.error('Ошибка при получении статистики досок:', e);
             
@@ -175,7 +166,7 @@ module.exports = {
                 return cacheData.stats;
             }
             
-            return { byBoard: [], byList: [] };
+            return [];
         }
     }
 };
