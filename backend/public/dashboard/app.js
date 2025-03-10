@@ -99,24 +99,23 @@ async function updateBoardStats() {
             throw new Error(error.details || error.error || 'Ошибка загрузки статистики досок');
         }
         
-        const data = await response.json();
+        const groups = await response.json();
         const container = document.getElementById('boardGroups');
         container.innerHTML = '';
 
-        if (!data || !data.byList || data.byList.length === 0) {
+        if (!Array.isArray(groups) || groups.length === 0) {
             container.innerHTML = '<div class="text-center">Нет данных по доскам</div>';
             return;
         }
 
-        // Группируем доски по спискам
-        data.byList.forEach((listGroup, index) => {
+        groups.forEach((group, index) => {
             const groupDiv = document.createElement('div');
             groupDiv.className = 'mb-4';
             
             // Добавляем заголовок группы
             const groupHeader = document.createElement('h6');
             groupHeader.className = 'mb-3';
-            groupHeader.textContent = `${listGroup.listName} (Всего: ${listGroup.totalCards})`;
+            groupHeader.textContent = group.listNames.join(' | ');
             groupDiv.appendChild(groupHeader);
             
             // Создаем таблицу для группы
@@ -128,38 +127,32 @@ async function updateBoardStats() {
             thead.innerHTML = `
                 <tr>
                     <th>Название доски</th>
-                    <th class="text-center">Количество карточек</th>
+                    <th class="text-center">${group.listNames[0]}</th>
+                    <th class="text-center">${group.listNames[1]}</th>
+                    <th class="text-center">Всего</th>
                 </tr>
             `;
             
             // Тело таблицы
             const tbody = document.createElement('tbody');
             
-            listGroup.boards.forEach(board => {
-                if (board.count > 0) { // Показываем только доски с карточками
+            group.boards.forEach(board => {
+                const total = board.counts[0] + board.counts[1];
+                if (total > 0) { // Показываем только доски с карточками
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${board.boardName}</td>
-                        <td class="text-center">${board.count}</td>
+                        <td class="text-center">${board.counts[0]}</td>
+                        <td class="text-center">${board.counts[1]}</td>
+                        <td class="text-center">${total}</td>
                     `;
                     tbody.appendChild(tr);
                 }
             });
             
-            // Добавляем строку с итогами, если есть несколько досок с карточками
-            const boardsWithCards = listGroup.boards.filter(b => b.count > 0);
-            if (boardsWithCards.length > 1) {
-                const totalRow = document.createElement('tr');
-                totalRow.className = 'table-info';
-                totalRow.innerHTML = `
-                    <td><strong>Итого по списку</strong></td>
-                    <td class="text-center"><strong>${listGroup.totalCards}</strong></td>
-                `;
-                tbody.appendChild(totalRow);
-            }
-            
             // Добавляем таблицу только если есть доски с карточками
-            if (boardsWithCards.length > 0) {
+            const hasCards = group.boards.some(board => board.counts[0] + board.counts[1] > 0);
+            if (hasCards) {
                 table.appendChild(thead);
                 table.appendChild(tbody);
                 groupDiv.appendChild(table);

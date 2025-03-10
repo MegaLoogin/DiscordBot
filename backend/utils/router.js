@@ -226,55 +226,40 @@ router.get('/api/boards', async (req, res) => {
         const { getBoardsStats } = require('./trello');
         const data = await getBoardsStats();
 
-        // Преобразуем данные в нужный формат
-        const byBoard = data.reduce((acc, group) => {
-            group.boards.forEach(board => {
-                acc.push({
-                    boardName: board.boardName,
-                    firstListName: group.listNames[0],
-                    secondListName: group.listNames[1],
-                    firstListCount: board.counts[0],
-                    secondListCount: board.counts[1]
-                });
-            });
-            return acc;
-        }, []);
+        // Группируем доски по парам списков
+        const boardGroups = new Map();
 
-        // Группируем по спискам
-        const listNames = new Set();
+        // Создаем группы по парам списков
         data.forEach(group => {
-            group.listNames.forEach(name => listNames.add(name));
+            const listPair = group.listNames.join(' | ');
+            if (!boardGroups.has(listPair)) {
+                boardGroups.set(listPair, {
+                    listNames: group.listNames,
+                    boards: []
+                });
+            }
+            group.boards.forEach(board => {
+                boardGroups.get(listPair).boards.push(board);
+            });
         });
 
-        const byList = Array.from(listNames).map(listName => {
-            const boards = [];
-            let totalCards = 0;
-
-            data.forEach(group => {
-                const listIndex = group.listNames.indexOf(listName);
-                if (listIndex !== -1) {
-                    group.boards.forEach(board => {
-                        const count = board.counts[listIndex];
-                        totalCards += count;
-                        boards.push({
-                            boardName: board.boardName,
-                            count: count
-                        });
-                    });
-                }
+        // Преобразуем Map в массив и сортируем группы
+        const groups = Array.from(boardGroups.values())
+            .map(group => ({
+                listNames: group.listNames,
+                boards: group.boards.sort((a, b) => {
+                    const totalA = a.counts[0] + a.counts[1];
+                    const totalB = b.counts[0] + b.counts[1];
+                    return totalB - totalA;
+                })
+            }))
+            .sort((a, b) => {
+                const totalA = a.boards.reduce((sum, board) => sum + board.counts[0] + board.counts[1], 0);
+                const totalB = b.boards.reduce((sum, board) => sum + board.counts[0] + board.counts[1], 0);
+                return totalB - totalA;
             });
 
-            return {
-                listName,
-                totalCards,
-                boards: boards.sort((a, b) => b.count - a.count)
-            };
-        });
-
-        // Сортируем списки по общему количеству карточек
-        byList.sort((a, b) => b.totalCards - a.totalCards);
-
-        res.json({ byBoard, byList });
+        res.json(groups);
     } catch (error) {
         console.error('Ошибка при получении статистики досок:', error);
         res.status(500).json({ 
