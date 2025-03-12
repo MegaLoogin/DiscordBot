@@ -5,7 +5,7 @@ const path = require('node:path');
 const GoogleAPI = require("./utils/gapi.js");
 
 const express = require('express');
-const router = require("./utils/router.js");
+const { router } = require("./utils/router.js");
 
 const app = express();
 app.use(express.json());

@@ -7,7 +7,11 @@ const path = require('path');
 const fs = require('fs');
 
 const router = new Router();
-module.exports = router;
+module.exports = {
+    router,
+    createBackup,
+    cleanupOldBackups
+};
 
 router.get('/test', async (req, res) => {
     res.json({"status": "ok"});
