@@ -161,9 +161,10 @@ async function waitForTranscript(meetingId, maxAttempts = 30) {
     console.log("Status: ", status);
     if (status.data?.transcript?.meeting_info?.summary_status === 'processed') {
       return status.data.transcript;
-    }else if(status.data?.transcript?.meeting_info?.summary_status === null){
-      throw new Error('Транскрипция не найдена');
     }
+    // }else if(status.data?.transcript?.meeting_info?.summary_status === null){
+    //   throw new Error('Транскрипция не найдена');
+    // }
     // Ждем 2 минуты перед следующей проверкой
     await new Promise(resolve => setTimeout(resolve, 120000));
   }
