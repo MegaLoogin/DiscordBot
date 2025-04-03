@@ -1,4 +1,3 @@
-require('dotenv').config();
 const { google } = require('googleapis');
 const axios = require('axios');
 const fs = require('fs');
