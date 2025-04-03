@@ -65,6 +65,7 @@ const CHECK_INTERVAL = 30 * 1000;
 const activityTracker = require('./utils/activityTracker');
 const statusTracker = require('./utils/statusTracker');
 const schedule = require('node-schedule');
+const { google } = require("googleapis");
 
 const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8; // Начало рабочего дня
 const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 17; // Конец рабочего дня
