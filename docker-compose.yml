@@ -16,7 +16,7 @@ services:
         image: ngrok/ngrok:latest
         restart: unless-stopped
         environment:
-            - NGROK_AUTHTOKEN=${NGROK_AUTH_TOKEN}
+            - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
             - NGROK_DOMAIN=${NGROK_DOMAIN}
         ports:
             - "4040:4040"
