@@ -4,16 +4,14 @@ const fs = require('fs');
 const path = require('path');
 
 // Путь к файлу с токенами
-const TOKEN_PATH = path.join(__dirname, 'tokens.json');
-
-const oauth2Client = require('../index').oauth2Client;
+const TOKEN_PATH = path.join(__dirname, '../volume/tokens.json');
 
 // Настройка OAuth 2.0
-// const oauth2Client = new google.auth.OAuth2(
-//   process.env.CLIENT_ID,
-//   process.env.CLIENT_SECRET,
-//   'https://discrete-quetzal-lucky.ngrok-free.app/oauth2callback'
-// );
+const oauth2Client = new google.auth.OAuth2(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  'https://discrete-quetzal-lucky.ngrok-free.app/oauth2callback'
+);
 
 // Функция для загрузки токенов
 function loadTokens() {
