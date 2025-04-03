@@ -15,6 +15,7 @@ const oauth2Client = new google.auth.OAuth2(
 
 // Функция для загрузки токенов
 function loadTokens() {
+  console.log('TOKEN_PATH: ', TOKEN_PATH);
   if (fs.existsSync(TOKEN_PATH)) {
     const tokens = JSON.parse(fs.readFileSync(TOKEN_PATH));
     return tokens;

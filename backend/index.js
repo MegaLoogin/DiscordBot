@@ -83,6 +83,7 @@ const oauth2Client = new google.auth.OAuth2(
 // Функция для сохранения токенов
 function saveTokens(tokens) {
   fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens));
+  console.log('Токены сохранены в:', TOKEN_PATH);
 }
 
 // Функция для загрузки токенов
