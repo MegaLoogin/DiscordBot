@@ -73,7 +73,11 @@ const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 17; // Конец �
 const TOKEN_PATH = path.join(__dirname, 'tokens.json');
 
 // Настройка OAuth 2.0
-const oauth2Client = new GoogleAPI();
+const oauth2Client = new google.auth.OAuth2(
+  process.env.CLIENT_ID,
+  process.env.CLIENT_SECRET,
+  'http://185.253.219.39:8181/oauth2callback'
+);
 
 // Функция для сохранения токенов
 function saveTokens(tokens) {
