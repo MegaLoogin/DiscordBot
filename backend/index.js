@@ -69,6 +69,66 @@ const schedule = require('node-schedule');
 const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8; // Начало рабочего дня
 const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 17; // Конец рабочего дня
 
+// Путь к файлу с токенами
+const TOKEN_PATH = path.join(__dirname, 'tokens.json');
+
+// Настройка OAuth 2.0
+const oauth2Client = new GoogleAPI();
+
+// Функция для сохранения токенов
+function saveTokens(tokens) {
+  fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens));
+}
+
+// Функция для загрузки токенов
+function loadTokens() {
+  if (fs.existsSync(TOKEN_PATH)) {
+    const tokens = JSON.parse(fs.readFileSync(TOKEN_PATH));
+    return tokens;
+  }
+  return null;
+}
+
+// Маршрут для авторизации
+router.get('/auth', (req, res) => {
+  const tokens = loadTokens();
+  
+  if (tokens && tokens.access_token && tokens.refresh_token) {
+    res.send('Вы уже авторизованы!');
+    return;
+  }
+
+  const scopes = [
+    'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/calendar.events'
+  ];
+
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    scope: scopes,
+    prompt: 'consent'
+  });
+
+  res.redirect(url);
+});
+
+// Callback маршрут после авторизации
+router.get('/oauth2callback', async (req, res) => {
+  const { code } = req.query;
+  
+  try {
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+    
+    // Сохраняем токены
+    saveTokens(tokens);
+    
+    res.send('Авторизация успешна! Теперь вы можете использовать /startmeeting для создания встреч.');
+  } catch (error) {
+    console.error('Ошибка при получении токена:', error);
+    res.status(500).send('Ошибка при авторизации');
+  }
+});
 
 function getTimeWithTimezone(timeZone) {
   const now = new Date();
