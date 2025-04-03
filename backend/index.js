@@ -363,6 +363,28 @@ router.post('/api/transcription/check', async (req, res) => {
             meta
         });
 
+        // Отправляем транскрипцию в Discord
+        const channel = client.channels.cache.get(process.env.RESULTS_CHAN_ID);
+        if (channel) {
+            const message = [
+                `**Транскрипция встречи: ${title}**`,
+                '',
+                '**Общее описание:**',
+                transcript.summary?.overview || 'Нет общего описания',
+                '',
+                '**Ключевые слова:**',
+                transcript.summary?.keywords?.join(', ') || 'Нет ключевых слов',
+                '',
+                '**Задачи:**',
+                transcript.summary?.action_items?.join('\n') || 'Нет задач',
+                '',
+                '**Краткое содержание:**',
+                transcript.summary?.shorthand_bullet || 'Нет краткого содержания'
+            ].join('\n');
+
+            await channel.send(message);
+        }
+
         res.json({
             status: 'ok',
             transcript
