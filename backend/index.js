@@ -369,18 +369,18 @@ router.post('/api/transcription/check', async (req, res) => {
             const message = [
                 `**Транскрипция встречи: ${title}**`,
                 '',
-                '**Общее описание:**',
-                transcript.summary?.overview || 'Нет общего описания',
-                '',
                 '**Ключевые слова:**',
                 transcript.summary?.keywords?.join(', ') || 'Нет ключевых слов',
                 '',
+                '**Общее описание:**',
+                transcript.summary?.overview || 'Нет общего описания',
+                '',
                 '**Задачи:**',
-                transcript.summary?.action_items?.join('\n') || 'Нет задач',
+                transcript.summary?.action_items || 'Нет задач',
                 '',
                 '**Краткое содержание:**',
                 transcript.summary?.shorthand_bullet || 'Нет краткого содержания'
-            ].join('\n');
+            ].join('\n\n');
 
             await channel.send(message);
         }
