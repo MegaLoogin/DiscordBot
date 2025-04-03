@@ -397,10 +397,7 @@ router.post('/api/transcription/check', async (req, res) => {
         const channel = client.channels.cache.get(process.env.RESULTS_CHAN_ID);
         if (channel) {
             const message = [
-                `**Транскрипция встречи: ${title}**`,
-                '',
-                '**Ключевые слова:**',
-                transcript.summary?.keywords?.join(', ') || 'Нет ключевых слов',
+                `**${title}**`,
                 '',
                 '**Общее описание:**',
                 transcript.summary?.overview || 'Нет общего описания',
@@ -410,7 +407,7 @@ router.post('/api/transcription/check', async (req, res) => {
                 '',
                 '**Краткое содержание:**',
                 transcript.summary?.shorthand_bullet || 'Нет краткого содержания'
-            ].join('\n\n');
+            ].join('\n');
 
             // Разбиваем сообщение на части и отправляем каждую часть
             const messageParts = splitMessage(message);
