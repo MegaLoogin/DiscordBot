@@ -3,6 +3,7 @@ const deployCommands = require('./deploy-commands.js');
 const fs = require('node:fs');
 const path = require('node:path');
 const GoogleAPI = require("./utils/gapi.js");
+const { getMeetingTranscript } = require("./utils/meetingService");
 
 const express = require('express');
 const { router } = require("./utils/router.js");
@@ -269,6 +270,42 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
         
         // Обновляем статус пользователя
         statusTracker.updateUserStatus(userId, newMember.displayName);
+    }
+});
+
+// Добавляем маршрут для проверки транскрипции
+router.post('/api/transcription/check', async (req, res) => {
+    try {
+        const { meetingId } = req.body;
+
+        if (!meetingId) {
+            return res.status(400).json({
+                error: 'Необходимо указать meetingId'
+            });
+        }
+
+        // Получаем транскрипцию
+        const transcript = await getMeetingTranscript(meetingId);
+        
+        // Извлекаем метаданные из заголовка
+        const [title, meta] = transcript.title.split('|');
+
+        console.log('Получена транскрипция:', {
+            success: true,
+            title,
+            transcript,
+            meta
+        });
+
+        res.json({
+            status: 'ok',
+            transcript
+        });
+    } catch (error) {
+        console.error('Ошибка при получении транскрипции:', error);
+        res.status(500).json({
+            error: error.message
+        });
     }
 });
 
