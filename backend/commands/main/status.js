@@ -1,5 +1,12 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const { getTimeWithTimezone } = require('../..');
+
+function getTimeWithTimezone(timeZone) {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000; // UTC timestamp
+    const tzDate = new Date(utc).toLocaleString("en-US", { timeZone }); // Локальное время в нужном поясе
+  
+    return new Date(tzDate); // Timestamp с учетом часового пояса
+  }
 
 const STATUS_EMOJIS = {
     'online': '🟢',

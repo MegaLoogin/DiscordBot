@@ -2,7 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const activityTracker = require('./activityTracker');
 const { changeUserStatus } = require('../commands/main/status');
-const { getTimeWithTimezone } = require('..');
+
+function getTimeWithTimezone(timeZone) {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000; // UTC timestamp
+    const tzDate = new Date(utc).toLocaleString("en-US", { timeZone }); // Локальное время в нужном поясе
+  
+    return new Date(tzDate); // Timestamp с учетом часового пояса
+  }
 
 const STATUS_FILE = path.join(__dirname, '../volume/status_stats.json');
 const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8;

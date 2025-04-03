@@ -1,6 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const { getTimeWithTimezone } = require('../index.js');
+
+function getTimeWithTimezone(timeZone) {
+    const now = new Date();
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000; // UTC timestamp
+    const tzDate = new Date(utc).toLocaleString("en-US", { timeZone }); // Локальное время в нужном поясе
+  
+    return new Date(tzDate); // Timestamp с учетом часового пояса
+  }
 
 const ACTIVITY_FILE = path.join(__dirname, '../volume/activityData.json');
 const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8;
