@@ -17,6 +17,7 @@ services:
         restart: unless-stopped
         environment:
             - NGROK_AUTHTOKEN=${NGROK_AUTH_TOKEN}
+            - NGROK_DOMAIN=${NGROK_DOMAIN}
         ports:
             - "4040:4040"
         command: http --domain=${NGROK_DOMAIN} backend:8181
