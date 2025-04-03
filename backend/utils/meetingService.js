@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Путь к файлу с токенами
-const TOKEN_PATH = path.join(__dirname, '../volume/tokens.json');
+const TOKEN_PATH = path.join(__dirname, '/backend/volume/tokens.json');
 
 // Настройка OAuth 2.0
 const oauth2Client = new google.auth.OAuth2(
