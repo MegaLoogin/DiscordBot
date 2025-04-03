@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { getTimeWithTimezone } = require('..');
+const { getTimeWithTimezone } = require('../index.js');
 
 const ACTIVITY_FILE = path.join(__dirname, '../volume/activityData.json');
 const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8;
