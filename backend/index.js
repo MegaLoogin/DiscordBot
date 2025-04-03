@@ -71,7 +71,7 @@ const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8; // Нача�
 const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 17; // Конец рабочего дня
 
 // Путь к файлу с токенами
-const TOKEN_PATH = path.join(__dirname, '/backend/volume/tokens.json');
+const TOKEN_PATH = path.join(__dirname, './volume/tokens.json');
 
 // Настройка OAuth 2.0
 const oauth2Client = new google.auth.OAuth2(
