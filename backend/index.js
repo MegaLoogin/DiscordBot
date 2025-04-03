@@ -396,4 +396,4 @@ setInterval(() => {
 }, 15000); // Проверка каждую минуту
 
 
-module.exports = { client, gapi, getTimeWithTimezone };
+module.exports = { client, gapi, getTimeWithTimezone, oauth2Client };
