@@ -9,6 +9,8 @@ services:
             - 8181:8181
         volumes:
             - ./backend/volume:/backend/volume
+        networks:
+            - app-network
 
     ngrok:
         image: ngrok/ngrok:latest
@@ -18,3 +20,11 @@ services:
         ports:
             - "4040:4040"
         command: http --domain=${NGROK_DOMAIN} backend:8181
+        depends_on:
+            - backend
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge
