@@ -9,3 +9,12 @@ services:
             - 8181:8181
         volumes:
             - ./backend/volume:/backend/volume
+
+    ngrok:
+        image: ngrok/ngrok:latest
+        restart: unless-stopped
+        environment:
+            - NGROK_AUTH=${NGROK_AUTH_TOKEN}
+        ports:
+            - "4040:4040"
+        command: http --domain=${NGROK_DOMAIN} backend:8181
