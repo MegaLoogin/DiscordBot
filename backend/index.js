@@ -77,7 +77,7 @@ const TOKEN_PATH = path.join(__dirname, 'tokens.json');
 const oauth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
   process.env.CLIENT_SECRET,
-  'http://185.253.219.39:8181/oauth2callback'
+  'https://discrete-quetzal-lucky.ngrok-free.app/oauth2callback'
 );
 
 // Функция для сохранения токенов

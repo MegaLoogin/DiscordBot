@@ -10,7 +10,7 @@ const TOKEN_PATH = path.join(__dirname, 'tokens.json');
 const oauth2Client = new google.auth.OAuth2(
   process.env.CLIENT_ID,
   process.env.CLIENT_SECRET,
-  'http://localhost:3000/oauth2callback'
+  'https://discrete-quetzal-lucky.ngrok-free.app/oauth2callback'
 );
 
 // Функция для загрузки токенов
@@ -27,7 +27,7 @@ async function ensureValidTokens() {
   const tokens = loadTokens();
   
   if (!tokens) {
-    throw new Error('Требуется авторизация. Перейдите по адресу: http://localhost:3000/auth');
+    throw new Error('Требуется авторизация. Перейдите по адресу: https://discrete-quetzal-lucky.ngrok-free.app/auth');
   }
 
   oauth2Client.setCredentials(tokens);
