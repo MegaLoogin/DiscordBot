@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { getTimeWithTimezone } = require('../..');
 
 const STATUS_EMOJIS = {
     'online': '🟢',
@@ -74,7 +75,7 @@ module.exports = {
 
         // Если не администратор, проверяем рабочее время
         if (!isAdmin) {
-            const now = new Date();
+            const now = getTimeWithTimezone("Europe/Kiev");
             const day = now.getDay();
             const hour = now.getHours();
 

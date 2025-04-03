@@ -69,8 +69,16 @@ const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8; // Нача�
 const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 17; // Конец рабочего дня
 
 
+function getTimeWithTimezone(timeZone) {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000; // UTC timestamp
+  const tzDate = new Date(utc).toLocaleString("en-US", { timeZone }); // Локальное время в нужном поясе
+
+  return new Date(tzDate); // Timestamp с учетом часового пояса
+}
+
 // Остальные функции остаются без изменений
-function isWorkingTime(date = new Date()) {
+function isWorkingTime(date = getTimeWithTimezone("Europe/Kiev")) {
     const day = date.getDay();
     const hour = date.getHours();
     return day >= 1 && day <= 5 && hour >= WORK_START_HOUR && hour < WORK_END_HOUR;
@@ -286,4 +294,4 @@ setInterval(() => {
 }, 15000); // Проверка каждую минуту
 
 
-module.exports = { client, gapi };
+module.exports = { client, gapi, getTimeWithTimezone };
