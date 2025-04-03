@@ -339,6 +339,36 @@ client.on('guildMemberUpdate', (oldMember, newMember) => {
     }
 });
 
+// Функция для разбиения длинных сообщений
+function splitMessage(message, maxLength = 2000) {
+    if (message.length <= maxLength) return [message];
+    
+    const parts = [];
+    let currentPart = '';
+    
+    // Разбиваем по строкам
+    const lines = message.split('\n');
+    
+    for (const line of lines) {
+        // Если текущая часть + новая строка превышает лимит, начинаем новую часть
+        if ((currentPart + line).length > maxLength) {
+            if (currentPart) {
+                parts.push(currentPart.trim());
+            }
+            currentPart = line;
+        } else {
+            currentPart += (currentPart ? '\n' : '') + line;
+        }
+    }
+    
+    // Добавляем последнюю часть
+    if (currentPart) {
+        parts.push(currentPart.trim());
+    }
+    
+    return parts;
+}
+
 // Добавляем маршрут для проверки транскрипции
 router.post('/api/transcription/check', async (req, res) => {
     try {
@@ -382,7 +412,11 @@ router.post('/api/transcription/check', async (req, res) => {
                 transcript.summary?.shorthand_bullet || 'Нет краткого содержания'
             ].join('\n\n');
 
-            await channel.send(message);
+            // Разбиваем сообщение на части и отправляем каждую часть
+            const messageParts = splitMessage(message);
+            for (const part of messageParts) {
+                await channel.send(part);
+            }
         }
 
         res.json({
