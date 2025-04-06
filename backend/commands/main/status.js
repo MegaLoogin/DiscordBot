@@ -16,8 +16,8 @@ const STATUS_EMOJIS = {
 
 const MAX_NICKNAME_LENGTH = 32;
 
-const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8; // Начало рабочего дня
-const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 17; // Конец рабочего дня
+const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 9; // Начало рабочего дня
+const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 19; // Конец рабочего дня
 
 // Функция для разбора никнейма на статус и имя
 function parseNickname(nickname) {

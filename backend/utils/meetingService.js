@@ -153,7 +153,7 @@ async function getTranscript(meetingId) {
 }
 
 // Функция для ожидания завершения транскрипции
-async function waitForTranscript(meetingId, maxAttempts = 30) {
+async function waitForTranscript(meetingId, maxAttempts = 10) {
   for (let i = 0; i < maxAttempts; i++) {
     // const status = await checkTranscriptStatus(meetingId);
     console.log("Try ", i);
@@ -164,8 +164,8 @@ async function waitForTranscript(meetingId, maxAttempts = 30) {
     }else if(status.data?.transcript?.meeting_info?.summary_status === "failed" || status.data?.transcript?.meeting_info?.summary_status === "skipped"){
       throw new Error('Транскрипция не найдена');
     }
-    // Ждем 2 минуты перед следующей проверкой
-    await new Promise(resolve => setTimeout(resolve, 120000));
+    // Ждем 10 минуты перед следующей проверкой
+    await new Promise(resolve => setTimeout(resolve, 1200000));
   }
   
   throw new Error('Превышено время ожидания транскрипции');

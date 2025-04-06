@@ -67,8 +67,8 @@ const statusTracker = require('./utils/statusTracker');
 const schedule = require('node-schedule');
 const { google } = require("googleapis");
 
-const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 8; // Начало рабочего дня
-const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 17; // Конец рабочего дня
+const WORK_START_HOUR = parseInt(process.env.WORK_START_HOUR) || 9; // Начало рабочего дня
+const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 19; // Конец рабочего дня
 
 // Путь к файлу с токенами
 const TOKEN_PATH = path.join(__dirname, './volume/tokens.json');
@@ -278,7 +278,7 @@ client.on('ready', () => {
   }, CHECK_INTERVAL);
 
   // Вызов функции проверки статусов каждый день в 10:15
-  schedule.scheduleJob(`15 ${WORK_START_HOUR} * * 1-5`, async () => {
+  schedule.scheduleJob(`15 ${WORK_START_HOUR + 1} * * 1-5`, async () => {
     client.guilds.cache.forEach(guild => {
         guild.members.fetch().then(members => {
             members.forEach(member => {
@@ -293,11 +293,61 @@ client.on('ready', () => {
     });
   });
 
+  
+
   // Запланируйте сброс данных перед началом рабочего дня
   schedule.scheduleJob(`55 ${WORK_START_HOUR - 1} * * 1-5`, async () => {
     console.log('Сброс данных активности и статусов перед началом рабочего дня...');
     await statusTracker.resetDailyStats(client); // Сброс статусов
     activityTracker.resetData(); // Сброс данных активности
+  });
+
+  //FB
+
+  schedule.scheduleJob(`50 11 * * 1-5`, async () => {
+    const channel = client.channels.cache.get(`1336797749592457276`);
+    if (channel) {
+        await channel.send(`@everyone созвон через 10 минут!`);
+    }
+  });
+
+  schedule.scheduleJob(`0 12 * * 1-5`, async () => {
+    const meeting = await createMeeting(
+        `FB daily meeting ${new Date().toLocaleDateString("ru-RU", {day: "numeric", month: "numeric"})}`,
+        '', // пустое описание
+        new Date().toISOString(),
+        60,
+        'FB' // пустые метаданные
+    );
+    
+    const channel = client.channels.cache.get(`1336797749592457276`);
+    if (channel) {
+        await channel.send(`@everyone\n12:00 FB daily meeting\nСсылка: ${meeting.meetingUrl}`);
+    }
+  });
+
+  //Affilate
+
+  schedule.scheduleJob(`55 12 * * 1-5`, async () => {
+    const channel = client.channels.cache.get(`1346109741151027220`);
+    if (channel) {
+        await channel.send(`@everyone созвон через 10 минут!`);
+    }
+  });
+
+  schedule.scheduleJob(`0 13 * * 1-5`, async () => {
+    const meeting = await createMeeting(
+        `Affilate daily meeting ${new Date().toLocaleDateString("ru-RU", {day: "numeric", month: "numeric"})}`,
+        '', // пустое описание
+        new Date().toISOString(),
+        60,
+        'Affilate' // пустые метаданные
+    );
+
+    const channel = client.channels.cache.get(`1346109741151027220`);
+    if (channel) {
+        await channel.send(`@everyone\n13:00 Affilate daily meeting\nСсылка: ${meeting.meetingUrl}`);
+    }
   });
 });
 
@@ -394,7 +444,15 @@ router.post('/api/transcription/check', async (req, res) => {
         });
 
         // Отправляем транскрипцию в Discord
-        const channel = client.channels.cache.get(process.env.RESULTS_CHAN_ID);
+        let channelId = process.env.RESULTS_CHAN_ID;
+
+        if(meta.includes('FB')){
+            channelId = `1336797712875520080`;
+        }else if(meta.includes('Affilate')){
+            channelId = `1346109799817019443`;
+        }
+        
+        const channel = client.channels.cache.get(channelId);
         if (channel) {
             const message = [
                 `**${title}**`,
