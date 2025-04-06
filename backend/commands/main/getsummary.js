@@ -1,6 +1,34 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { getMeetingTranscript } = require('../../utils/meetingService');
-const { splitMessage } = require('../..');
+
+function splitMessage(message, maxLength = 2000) {
+    if (message.length <= maxLength) return [message];
+    
+    const parts = [];
+    let currentPart = '';
+    
+    // Разбиваем по строкам
+    const lines = message.split('\n');
+    
+    for (const line of lines) {
+        // Если текущая часть + новая строка превышает лимит, начинаем новую часть
+        if ((currentPart + line).length > maxLength) {
+            if (currentPart) {
+                parts.push(currentPart.trim());
+            }
+            currentPart = line;
+        } else {
+            currentPart += (currentPart ? '\n' : '') + line;
+        }
+    }
+    
+    // Добавляем последнюю часть
+    if (currentPart) {
+        parts.push(currentPart.trim());
+    }
+    
+    return parts;
+}
 
 module.exports = {
     data: new SlashCommandBuilder()
