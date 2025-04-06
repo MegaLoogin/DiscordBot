@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { getMeetingTranscript } = require('../../utils/meetingService');
-const { splitMessage } = require('../../index');
+const { splitMessage } = require('../..');
 
 module.exports = {
     data: new SlashCommandBuilder()
