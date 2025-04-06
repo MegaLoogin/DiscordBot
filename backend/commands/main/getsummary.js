@@ -59,7 +59,7 @@ module.exports = {
                 transcript.summary?.overview || 'Нет общего описания',
                 '',
                 '**Задачи:**',
-                ...(transcript.summary?.action_items || ['Нет задач']),
+                transcript.summary?.action_items || 'Нет задач',
                 '',
                 '**Краткое содержание:**',
                 transcript.summary?.shorthand_bullet || 'Нет краткого содержания'
