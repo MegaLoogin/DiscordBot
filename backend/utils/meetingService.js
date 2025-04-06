@@ -158,7 +158,7 @@ async function waitForTranscript(meetingId, maxAttempts = 10) {
     // const status = await checkTranscriptStatus(meetingId);
     console.log("Try ", i);
     const status = await getTranscript(meetingId);
-    console.log("Status: ", status);
+    console.log("Status: ", JSON.stringify(status, null, 2));
     if (status.data?.transcript?.meeting_info?.summary_status === 'processed') {
       return status.data.transcript;
     }else if(status.data?.transcript?.meeting_info?.summary_status === "failed" || status.data?.transcript?.meeting_info?.summary_status === "skipped"){
