@@ -303,11 +303,12 @@ client.on('ready', () => {
   });
 
   //FB
-
-  schedule.scheduleJob(`50 11 * * 1-5`, async () => {
+  console.log("Инициализация FB созвонов");
+  schedule.scheduleJob(`55 11 * * 1-5`, async () => {
+    console.log("Отправка сообщения о созвоне через 5 минут");
     const channel = client.channels.cache.get(`1336797749592457276`);
     if (channel) {
-        await channel.send(`@everyone созвон через 10 минут!`);
+        await channel.send(`@everyone созвон через 5 минут!`);
     }
   });
 
