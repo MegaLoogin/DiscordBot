@@ -453,6 +453,8 @@ router.post('/api/transcription/check', async (req, res) => {
         // Отправляем транскрипцию в Discord
         let channelId = process.env.RESULTS_CHAN_ID;
 
+        if(!meta) return;
+
         if(meta.includes('FB')){
             channelId = `1336797712875520080`;
         }else if(meta.includes('Affiliate')){
