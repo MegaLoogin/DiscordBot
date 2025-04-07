@@ -318,7 +318,7 @@ client.on('ready', () => {
         `FB daily meeting ${new Date().toLocaleDateString("ru-RU", {day: "numeric", month: "numeric"})}`,
         '', // пустое описание
         new Date().toISOString(),
-        60,
+        90,
         'FB' // пустые метаданные
     );
     
@@ -339,13 +339,13 @@ client.on('ready', () => {
   });
 
   schedule.scheduleJob(`0 13 * * 1-5`, async () => {
-    console.log("Создание созвона Affilate");
+    console.log("Создание созвона Affiliate");
     const meeting = await createMeeting(
-        `Affilate daily meeting ${new Date().toLocaleDateString("ru-RU", {day: "numeric", month: "numeric"})}`,
+        `Affiliate daily meeting ${new Date().toLocaleDateString("ru-RU", {day: "numeric", month: "numeric"})}`,
         '', // пустое описание
         new Date().toISOString(),
-        60,
-        'Affilate' // пустые метаданные
+        90,
+        'Affiliate' // пустые метаданные
     );
 
     const channel = client.channels.cache.get(`1346109741151027220`);
@@ -435,7 +435,7 @@ router.post('/api/transcription/check', async (req, res) => {
         }
 
         console.log("Ожидание 5 минут", meetingId);
-        // await new Promise(resolve => setTimeout(resolve, 300000));
+        await new Promise(resolve => setTimeout(resolve, 300000));
 
         // Получаем транскрипцию
         const transcript = await getMeetingTranscript(meetingId);
@@ -455,7 +455,7 @@ router.post('/api/transcription/check', async (req, res) => {
 
         if(meta.includes('FB')){
             channelId = `1336797712875520080`;
-        }else if(meta.includes('Affilate')){
+        }else if(meta.includes('Affiliate')){
             channelId = `1346109799817019443`;
         }
         
