@@ -198,7 +198,7 @@ async function createMeeting(title, description, startTime, duration, meta = '')
         timeZone: 'Europe/Moscow',
       },
       attendees: [
-        { email: 'woblatgbot@gmail.com' }
+        { email: 'anastasia.pertak@gmail.com' }
       ],
       conferenceData: {
         createRequest: {
