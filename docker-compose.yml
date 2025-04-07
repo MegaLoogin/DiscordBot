@@ -5,6 +5,8 @@ services:
         stdin_open: true
         tty: true
         env_file: ".env"
+        environment:
+            - TZ=Europe/Kiev
         ports:
             - 8181:8181
         volumes:

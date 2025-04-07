@@ -312,7 +312,7 @@ client.on('ready', () => {
     }
   });
 
-  schedule.scheduleJob(`7 12 * * 1-5`, async () => {
+  schedule.scheduleJob(`10 12 * * 1-5`, async () => {
     console.log("TEST");
   });
 
