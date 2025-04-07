@@ -3,7 +3,7 @@ const deployCommands = require('./deploy-commands.js');
 const fs = require('node:fs');
 const path = require('node:path');
 const GoogleAPI = require("./utils/gapi.js");
-const { getMeetingTranscript } = require("./utils/meetingService");
+const { getMeetingTranscript, createMeeting } = require("./utils/meetingService");
 
 const express = require('express');
 const { router } = require("./utils/router.js");
@@ -304,19 +304,16 @@ client.on('ready', () => {
 
   //FB
   console.log("Инициализация FB созвонов");
-  schedule.scheduleJob(`55 11 * * 1-5`, async () => {
-    console.log("Отправка сообщения о созвоне через 5 минут");
+  schedule.scheduleJob(`50 11 * * 1-5`, async () => {
+    console.log("Отправка сообщения о созвоне через 10 минут");
     const channel = client.channels.cache.get(`1336797749592457276`);
     if (channel) {
-        await channel.send(`@everyone созвон через 5 минут!`);
+        await channel.send(`@everyone созвон через 10 минут!`);
     }
   });
 
-  schedule.scheduleJob(`10 12 * * 1-5`, async () => {
-    console.log("TEST");
-  });
-
   schedule.scheduleJob(`0 12 * * 1-5`, async () => {
+    console.log("Создание созвона FB");
     const meeting = await createMeeting(
         `FB daily meeting ${new Date().toLocaleDateString("ru-RU", {day: "numeric", month: "numeric"})}`,
         '', // пустое описание
@@ -333,7 +330,8 @@ client.on('ready', () => {
 
   //Affilate
 
-  schedule.scheduleJob(`55 12 * * 1-5`, async () => {
+  schedule.scheduleJob(`50 12 * * 1-5`, async () => {
+    console.log("Отправка сообщения о созвоне через 10 минут");
     const channel = client.channels.cache.get(`1346109741151027220`);
     if (channel) {
         await channel.send(`@everyone созвон через 10 минут!`);
@@ -341,6 +339,7 @@ client.on('ready', () => {
   });
 
   schedule.scheduleJob(`0 13 * * 1-5`, async () => {
+    console.log("Создание созвона Affilate");
     const meeting = await createMeeting(
         `Affilate daily meeting ${new Date().toLocaleDateString("ru-RU", {day: "numeric", month: "numeric"})}`,
         '', // пустое описание
