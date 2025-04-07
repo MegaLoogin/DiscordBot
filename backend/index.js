@@ -312,6 +312,10 @@ client.on('ready', () => {
     }
   });
 
+  schedule.scheduleJob(`7 12 * * 1-5`, async () => {
+    console.log("TEST");
+  });
+
   schedule.scheduleJob(`0 12 * * 1-5`, async () => {
     const meeting = await createMeeting(
         `FB daily meeting ${new Date().toLocaleDateString("ru-RU", {day: "numeric", month: "numeric"})}`,
