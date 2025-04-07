@@ -434,6 +434,9 @@ router.post('/api/transcription/check', async (req, res) => {
             });
         }
 
+        console.log("Ожидание 5 минут", meetingId);
+        await new Promise(resolve => setTimeout(resolve, 300000));
+
         // Получаем транскрипцию
         const transcript = await getMeetingTranscript(meetingId);
         
