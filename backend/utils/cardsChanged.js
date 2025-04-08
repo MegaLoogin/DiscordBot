@@ -36,7 +36,7 @@ module.exports = function (client){
             const match = card.desc.match(/@([A-Za-z0-9]+)/);
 
             if(match){
-                await client.channels.cache.get(BIZDEV_CHAN_ID).send(`[Trello] <@${match[1]}> Ваш запрос (${card.name}) на этапе подключения`);
+                await client.channels.cache.get(BIZDEV_CHAN_ID).send(`[Trello] ${match[1]} Ваш запрос (${card.name}) на этапе подключения`);
             }else{
                 await client.channels.cache.get(BIZDEV_CHAN_ID).send(`[Trello] Ваш запрос (${card.name}) на этапе подключения`);
             }
@@ -50,7 +50,7 @@ module.exports = function (client){
             await moveCard(FB_BOARD, FB_LIST_NEW, card.id);
 
             if(match){
-                await client.channels.cache.get(BIZDEV_CHAN_ID).send(`[Trello] <@${match[1]}> добавлен новый оффер (${card.name})`);
+                await client.channels.cache.get(BIZDEV_CHAN_ID).send(`[Trello] ${match[1]} добавлен новый оффер (${card.name})`);
             }else{
                 await client.channels.cache.get(BIZDEV_CHAN_ID).send(`[Trello] Добавлен новый оффер (${card.name})`);
             }
@@ -65,7 +65,7 @@ module.exports = function (client){
                 await moveCard(buyerName + " " + FB_TEMPLATE_NAME, FB_LIST_NEW, card.id);
     
                 if(match){
-                    await client.channels.cache.get(BIZDEV_CHAN_ID).send(`[Trello] <@${match[1]}> добавлен новый оффер. Проверьте свою доску`);
+                    await client.channels.cache.get(BIZDEV_CHAN_ID).send(`[Trello] ${match[1]} добавлен новый оффер. Проверьте свою доску`);
                 }else{
                     await client.channels.cache.get(BIZDEV_CHAN_ID).send(`[Trello] Добавлен новый оффер. Проверьте свою доску`);
                 }
@@ -107,7 +107,7 @@ module.exports = function (client){
             const match = card.desc.match(/@([A-Za-z0-9]+)/);
 
             if(match){
-                await client.channels.cache.get(BIZDEV_PUSH_CHAN_ID).send(`[Trello] <@${match[1]}> Ваш запрос (${card.name}) на этапе подключения`);
+                await client.channels.cache.get(BIZDEV_PUSH_CHAN_ID).send(`[Trello] ${match[1]} Ваш запрос (${card.name}) на этапе подключения`);
             }else{
                 await client.channels.cache.get(BIZDEV_PUSH_CHAN_ID).send(`[Trello] Ваш запрос (${card.name}) на этапе подключения`);
             }
@@ -121,7 +121,7 @@ module.exports = function (client){
             await moveCard(PUSH_BOARD, PUSH_LIST_NEW, card.id);
 
             if(match){
-                await client.channels.cache.get(BIZDEV_PUSH_CHAN_ID).send(`[Trello] <@${match[1]}> добавлен новый оффер (${card.name})`);
+                await client.channels.cache.get(BIZDEV_PUSH_CHAN_ID).send(`[Trello] ${match[1]} добавлен новый оффер (${card.name})`);
             }else{
                 await client.channels.cache.get(BIZDEV_PUSH_CHAN_ID).send(`[Trello] Добавлен новый оффер (${card.name})`);
             }
@@ -136,7 +136,7 @@ module.exports = function (client){
                 await moveCard(buyerName + " " + PUSH_TEMPLATE_NAME, PUSH_LIST_NEW, card.id);
     
                 if(match){
-                    await client.channels.cache.get(BIZDEV_PUSH_CHAN_ID).send(`[Trello] <@${match[1]}> добавлен новый оффер. Проверьте свою доску`);
+                    await client.channels.cache.get(BIZDEV_PUSH_CHAN_ID).send(`[Trello] ${match[1]} добавлен новый оффер. Проверьте свою доску`);
                 }else{
                     await client.channels.cache.get(BIZDEV_PUSH_CHAN_ID).send(`[Trello] Добавлен новый оффер. Проверьте свою доску`);
                 }
@@ -178,7 +178,7 @@ module.exports = function (client){
             const match = card.desc.match(/from \[\s*(@\S+)\s*(<@\d+>)\s*(\d+)\s*\]/);
 
             if(match){
-                await client.channels.cache.get(match[3]).send(`[Trello] <@${match[2]}> Начата работа над задачей ${card.name}`);
+                await client.channels.cache.get(match[3]).send(`[Trello] ${match[2]} Начата работа над задачей ${card.name}`);
             }else{
                 await client.channels.cache.get(TECH_CHAN_ID).send(`[Trello] Начата работа над задачей ${card.name}`);
             }
@@ -190,7 +190,7 @@ module.exports = function (client){
             const match = card.desc.match(/from \[\s*(@\S+)\s*(<@\d+>)\s*(\d+)\s*\]/);
 
             if(match){
-                await client.channels.cache.get(match[3]).send(`[Trello] <@${match[2]}> Задача ${card.name} готова!`);
+                await client.channels.cache.get(match[3]).send(`[Trello] ${match[2]} Задача ${card.name} готова!`);
             }else{
                 await client.channels.cache.get(TECH_CHAN_ID).send(`[Trello] Задача ${card.name} готова!`);
             }
