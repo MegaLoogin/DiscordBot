@@ -144,6 +144,8 @@ function getTimeWithTimezone(timeZone) {
   return new Date(tzDate); // Timestamp с учетом часового пояса
 }
 
+console.log("TEEEEEST", getTimeWithTimezone("Europe/Kiev"), new Date());
+
 // Остальные функции остаются без изменений
 function isWorkingTime(date = getTimeWithTimezone("Europe/Kiev")) {
     const day = date.getDay();
