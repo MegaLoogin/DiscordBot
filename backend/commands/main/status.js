@@ -82,7 +82,7 @@ module.exports = {
 
         // Если не администратор, проверяем рабочее время
         if (!isAdmin) {
-            const now = getTimeWithTimezone("Europe/Kiev");
+            const now = new Date();
             const day = now.getDay();
             const hour = now.getHours();
 

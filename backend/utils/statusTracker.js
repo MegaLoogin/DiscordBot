@@ -51,7 +51,7 @@ class StatusTracker {
     }
 
     isWorkingHours() {
-        const now = getTimeWithTimezone("Europe/Kiev");
+        const now = new Date();
         const hours = now.getHours();
         const day = now.getDay();
         return day >= 1 && day <= 5 && hours >= WORK_START_HOUR && hours < WORK_END_HOUR;

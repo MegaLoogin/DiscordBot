@@ -144,10 +144,8 @@ function getTimeWithTimezone(timeZone) {
   return new Date(tzDate); // Timestamp с учетом часового пояса
 }
 
-console.log("TEEEEEST", getTimeWithTimezone("Europe/Kiev"), new Date());
-
 // Остальные функции остаются без изменений
-function isWorkingTime(date = getTimeWithTimezone("Europe/Kiev")) {
+function isWorkingTime(date = new Date()) {
     const day = date.getDay();
     const hour = date.getHours();
     return day >= 1 && day <= 5 && hour >= WORK_START_HOUR && hour < WORK_END_HOUR;
@@ -428,6 +426,7 @@ function splitMessage(message, maxLength = 2000) {
 // Добавляем маршрут для проверки транскрипции
 router.post('/api/transcription/check', async (req, res) => {
     try {
+        console.log(req.body);
         const { meetingId, eventType } = req.body;
 
         if (!meetingId) {
