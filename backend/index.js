@@ -426,11 +426,17 @@ function splitMessage(message, maxLength = 2000) {
 // Добавляем маршрут для проверки транскрипции
 router.post('/api/transcription/check', async (req, res) => {
     try {
-        const { meetingId } = req.body;
+        const { meetingId, eventType } = req.body;
 
         if (!meetingId) {
             return res.status(400).json({
                 error: 'Необходимо указать meetingId'
+            });
+        }
+
+        if(eventType !== 'Transcription complete'){
+            return res.status(400).json({
+                error: 'Необходимо указать eventType'
             });
         }
 
@@ -453,12 +459,20 @@ router.post('/api/transcription/check', async (req, res) => {
         // Отправляем транскрипцию в Discord
         let channelId = process.env.RESULTS_CHAN_ID;
 
-        if(!meta) return;
-
-        if(meta.includes('FB')){
+        if(!meta) {
+          if(title.includes('FB')){
+              channelId = `1336797712875520080`;
+          }else if(title.includes('Affiliate')){
+              channelId = `1346109799817019443`;
+          }else{
+            return;
+          }
+        }else{
+          if(meta.includes('FB')){
             channelId = `1336797712875520080`;
-        }else if(meta.includes('Affiliate')){
-            channelId = `1346109799817019443`;
+          }else if(meta.includes('Affiliate')){
+              channelId = `1346109799817019443`;
+          }
         }
         
         const channel = client.channels.cache.get(channelId);
