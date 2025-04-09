@@ -493,6 +493,7 @@ router.post('/api/transcription/check', async (req, res) => {
             }else if(title.includes('Affiliate daily')){
                 channelId = `1346109799817019443`;
             }else{
+                saveProcessedMeeting(meetingId);
                 return;
             }
         }else{
