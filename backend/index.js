@@ -72,6 +72,7 @@ const WORK_END_HOUR = parseInt(process.env.WORK_END_HOUR) || 19; // Конец �
 
 // Путь к файлу с токенами
 const TOKEN_PATH = path.join(__dirname, './volume/tokens.json');
+const PROCESSED_MEETINGS_PATH = path.join(__dirname, './volume/processed_meetings.json');
 
 // Настройка OAuth 2.0
 const oauth2Client = new google.auth.OAuth2(
@@ -93,6 +94,25 @@ function loadTokens() {
     return tokens;
   }
   return null;
+}
+
+// Функция для загрузки обработанных встреч
+function loadProcessedMeetings() {
+  if (fs.existsSync(PROCESSED_MEETINGS_PATH)) {
+    const data = JSON.parse(fs.readFileSync(PROCESSED_MEETINGS_PATH));
+    return data;
+  }
+  return { processedMeetings: [] };
+}
+
+// Функция для сохранения обработанных встреч
+function saveProcessedMeeting(meetingId) {
+  const data = loadProcessedMeetings();
+  if (!data.processedMeetings.includes(meetingId)) {
+    data.processedMeetings.push(meetingId);
+    fs.writeFileSync(PROCESSED_MEETINGS_PATH, JSON.stringify(data, null, 2));
+    console.log(`Meeting ID ${meetingId} сохранен в обработанных`);
+  }
 }
 
 // Маршрут для авторизации
@@ -423,12 +443,12 @@ function splitMessage(message, maxLength = 2000) {
     return parts;
 }
 
-// Добавляем маршрут для проверки транскрипции
+// Маршрут для проверки транскрипции
 router.post('/api/transcription/check', async (req, res) => {
     try {
         console.log(req.body);
         const { meetingId, eventType } = req.body;
-
+    
         if (!meetingId) {
             return res.status(400).json({
                 error: 'Необходимо указать meetingId'
@@ -439,6 +459,13 @@ router.post('/api/transcription/check', async (req, res) => {
             return res.status(400).json({
                 error: 'Необходимо указать eventType'
             });
+        }
+
+        // Проверяем, была ли уже обработана эта встреча
+        const processedMeetings = loadProcessedMeetings();
+        if (processedMeetings.processedMeetings.includes(meetingId)) {
+            console.log(`Meeting ID ${meetingId} уже был обработан ранее`);
+            return res.json({ status: 'already_processed' });
         }
 
         console.log("Ожидание 5 минут", meetingId);
@@ -461,21 +488,21 @@ router.post('/api/transcription/check', async (req, res) => {
         let channelId = process.env.RESULTS_CHAN_ID;
 
         if(!meta) {
-          if(title.includes('FB')){
-              channelId = `1336797712875520080`;
-          }else if(title.includes('Affiliate')){
-              channelId = `1346109799817019443`;
-          }else{
-            return;
-          }
+            if(title.includes('FB daily')){
+                channelId = `1336797712875520080`;
+            }else if(title.includes('Affiliate daily')){
+                channelId = `1346109799817019443`;
+            }else{
+                return;
+            }
         }else{
-          if(meta.includes('FB')){
-            channelId = `1336797712875520080`;
-          }else if(meta.includes('Affiliate')){
-              channelId = `1346109799817019443`;
-          }
+            if(meta.includes('FB')){
+                channelId = `1336797712875520080`;
+            }else if(meta.includes('Affiliate')){
+                channelId = `1346109799817019443`;
+            }
         }
-        
+
         const channel = client.channels.cache.get(channelId);
         if (channel) {
             const message = [
@@ -496,6 +523,9 @@ router.post('/api/transcription/check', async (req, res) => {
             for (const part of messageParts) {
                 await channel.send(part);
             }
+
+            // Сохраняем meetingId как обработанный
+            saveProcessedMeeting(meetingId);
         }
 
         res.json({
