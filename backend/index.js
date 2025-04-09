@@ -435,7 +435,7 @@ router.post('/api/transcription/check', async (req, res) => {
             });
         }
 
-        if(eventType !== 'Transcription complete'){
+        if(eventType !== 'Transcription completed'){
             return res.status(400).json({
                 error: 'Необходимо указать eventType'
             });
