@@ -465,7 +465,7 @@ router.post('/api/transcription/check', async (req, res) => {
         const processedMeetings = loadProcessedMeetings();
         if (processedMeetings.processedMeetings.includes(meetingId)) {
             console.log(`Meeting ID ${meetingId} уже был обработан ранее`);
-            return res.json({ status: 'already_processed' });
+            return;
         }
 
         console.log("Ожидание 5 минут", meetingId);
