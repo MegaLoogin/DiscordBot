@@ -324,7 +324,7 @@ client.on('ready', () => {
 
   //FB
   console.log("Инициализация FB созвонов");
-  schedule.scheduleJob(`50 11 * * 1-5`, async () => {
+  schedule.scheduleJob(`50 13 * * 1-5`, async () => {
     console.log("Отправка сообщения о созвоне через 10 минут");
     const channel = client.channels.cache.get(`1336797749592457276`);
     if (channel) {
@@ -332,7 +332,7 @@ client.on('ready', () => {
     }
   });
 
-  schedule.scheduleJob(`0 12 * * 1-5`, async () => {
+  schedule.scheduleJob(`0 14 * * 1-5`, async () => {
     console.log("Создание созвона FB");
     const meeting = await createMeeting(
         `FB daily meeting ${new Date().toLocaleDateString("ru-RU", {day: "numeric", month: "numeric"})}`,
