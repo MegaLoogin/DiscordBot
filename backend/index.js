@@ -344,7 +344,7 @@ client.on('ready', () => {
     
     const channel = client.channels.cache.get(`1336797749592457276`);
     if (channel) {
-        await channel.send(`@everyone\n12:00 FB daily meeting\nСсылка: ${meeting.meetingUrl}`);
+        await channel.send(`@everyone\n14:00 FB daily meeting\nСсылка: ${meeting.meetingUrl}`);
     }
   });
 
